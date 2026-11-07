@@ -1,0 +1,139 @@
+1) # First time setup
+
+A) # Check .NET SDK
+dotnet --version
+dotnet --list-sdks
+
+----------------------------------------
+
+B) # Check PostgreSQL
+psql --version
+
+# Check whether PostgreSQL is running:
+sudo systemctl status postgresql
+
+# Check the port
+pg_isready -h localhost -p 5432
+
+----------------------------------------
+
+C) # Create PostgreSQL database
+
+#Open PostgreSQL:
+sudo -u postgres psql -p 5432
+
+# Create a database user:
+CREATE USER efuser WITH PASSWORD '123123****';
+
+# Create the database:
+CREATE DATABASE EmployeeManagement
+OWNER efuser;
+
+*** Please note the database name is employeemanagement
+
+# Grant permissions:
+GRANT ALL PRIVILEGES ON DATABASE EmployeeManagement TO efuser;
+
+# Exit
+\q
+
+# Test the connection:
+psql -h localhost \
+     -p 5432 \
+     -U efuser \
+     -d employeemanagement
+
+# If successful, you'll see something like:
+employeemanagement=>
+
+----------------------------------------
+
+D) # Create ASP.NET Core Web API project
+
+# Create project
+mkdir EmployeeManagement
+cd EmployeeManagement
+
+# Create a Web API
+dotnet new webapi --no-https
+
+# Open VS Code
+code .
+
+# Run the app
+dotnet run
+
+#You should see something similar to:
+Now listening on: http://localhost:5000
+
+----------------------------------------
+
+E) # Install Entity Framework Core packages
+
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet tool install --global dotnet-ef
+dotnet tool update --global dotnet-ef
+
+# Verify
+dotnet ef --version
+
+----------------------------------------
+
+F) # Create Entity classes
+     |
+     |
+     |___ Employee.cs
+     |___ Department.cs
+
+----------------------------------------
+
+G) # Create DbContext
+     |
+     |__ AppDbContext.cs
+
+----------------------------------------
+
+H) # Configure PostgreSQL connection
+
+# First initialize user secrets:
+dotnet user-secrets init
+
+# Then configure the connection string:
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=employeemanagement;Username=efuser;Password=123123****"
+
+# Update Program.cs
+
+----------------------------------------
+
+I) # Create your first database migration
+
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+
+*** It failed so updated EF.csproj file
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>EFApp</AssemblyName>  ----> This line was added
+    <RootNamespace>EF</RootNamespace>   ----> This line was added
+    <UserSecretsId>6c127cbe-e411-4113-9c12-e225c423afc7</UserSecretsId>
+  </PropertyGroup>
+
+
+*** After change, run above 2 commands again.
+
+# To Verify, connect to DB
+psql -h localhost -p 5432 \
+     -U efuser \
+     -d employeemanagement
+
+# You should see something similar to:
+public | Departments
+public | Employees
+public | __EFMigrationsHistory
+
+
+----------------------------------------

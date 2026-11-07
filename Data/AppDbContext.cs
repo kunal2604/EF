@@ -1,0 +1,51 @@
+using EmployeeManagement.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace EmployeeManagement.Data;
+
+public class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    { }
+    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<Department> Departments => Set<Department>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Employee>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+            
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(150)
+                .HasColumnType("citext");
+            
+            entity.HasIndex(e => e.Email)
+                .IsUnique();
+            
+            entity.Property(e => e.Salary)
+                .HasPrecision(18,2);
+            
+            entity.HasOne(e => e.Department)
+                .WithMany(d => d.Employees)
+                .HasForeignKey(e => e.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Department>(entity =>
+        {
+            entity.HasKey(d => d.Id);
+
+            entity.Property(d => d.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+        });
+    }
+}
