@@ -1,6 +1,5 @@
 using EmployeeManagement.Models;
 using Microsoft.EntityFrameworkCore;
-
 namespace EmployeeManagement.Data;
 
 public class AppDbContext : DbContext
@@ -9,6 +8,7 @@ public class AppDbContext : DbContext
     { }
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Department> Departments => Set<Department>();
+    public DbSet<Project> Projects => Set<Project>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,5 +51,30 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100);
         });
+    
+        /* 
+        Implicit Join Entity (instead of Explicit Join Entity, which would need a separate class 'EmployeeProject') 
+        */ 
+        modelBuilder.Entity<Employee>()
+            .HasMany(e => e.Projects)
+            .WithMany(p => p.Employees)
+            .UsingEntity<Dictionary<string,object>>(
+                "EmployeeProjects",
+                j => j
+                    .HasOne<Project>()
+                    .WithMany()
+                    .HasForeignKey("ProjectId")
+                    .OnDelete(DeleteBehavior.Restrict),
+                j => j
+                    .HasOne<Employee>()
+                    .WithMany()
+                    .HasForeignKey("EmployeeId")
+                    .OnDelete(DeleteBehavior.Restrict),
+                j =>
+                {
+                    j.HasKey("EmployeeId", "ProjectId");
+                    j.ToTable("EmployeeProjects");
+                }    
+            );
     }
 }

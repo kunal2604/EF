@@ -10,5 +10,6 @@ public class Employee
     // Foreign Key
     public int DepartmentId { get; set; }
     // Navigation Property
-    public Department Department {get; set; } = null;    
+    public Department Department { get; set; } = null;
+    public ICollection<Project> Projects { get; set; } = new List<Project>();
 }
