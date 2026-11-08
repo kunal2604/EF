@@ -1,4 +1,6 @@
-1) # First time setup
+STEPS
+
+STEP 1) # First time setup
 
 A) # Check .NET SDK
 dotnet --version
@@ -135,5 +137,28 @@ public | Departments
 public | Employees
 public | __EFMigrationsHistory
 
+# Run the project and test APIs using Postman
+dotnet run --urls http://localhost:5080
+_____________________________________________________________________________________________
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+---------------------------------------------------------------------------------------------
 
-----------------------------------------
+STEP 2) Refactor API into layered architecture with repository and service
+Pull Request: https://github.com/kunal2604/EF/pull/5/changes
+
+_____________________________________________________________________________________________
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+---------------------------------------------------------------------------------------------
+
+STEP 3) Add new property to Employee: JoiningDate
+
+A) # Update Employee class, service, DTO etc.
+
+B) # Create a migration
+dotnet ef migrations add AddJoiningDateToEmployee
+
+C) # Apply migration
+dotnet ef database update
+
+# Now run the project and test APIs
+dotnet run --urls http://localhost:5080

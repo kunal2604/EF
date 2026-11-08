@@ -37,6 +37,10 @@ public class AppDbContext : DbContext
                 .WithMany(d => d.Employees)
                 .HasForeignKey(e => e.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.Property(e => e.JoiningDate)
+                .HasColumnType("date")
+                .HasDefaultValueSql("CURRENT_DATE");
         });
 
         modelBuilder.Entity<Department>(entity =>
