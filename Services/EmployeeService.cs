@@ -29,6 +29,7 @@ public class EmployeeService  : IEmployeeService
             Name = e.Name,
             Email = e.Email,
             Salary = e.Salary,
+            JoiningDate = e.JoiningDate,
             DepartmentName = e.Department.Name
         }).ToList();
     }
@@ -46,6 +47,7 @@ public class EmployeeService  : IEmployeeService
             Name = employee.Name,
             Email = employee.Email,
             Salary = employee.Salary,
+            JoiningDate = employee.JoiningDate,
             DepartmentName = employee.Department.Name
         };
     }
@@ -69,6 +71,7 @@ public class EmployeeService  : IEmployeeService
             Name = dto.Name,
             Email = dto.Email,
             Salary = dto.Salary,
+            JoiningDate = dto.JoiningDate,
             DepartmentId = dto.DepartmentId
         };
 
@@ -80,6 +83,7 @@ public class EmployeeService  : IEmployeeService
             Name = employee.Name,
             Email = employee.Email,
             Salary = employee.Salary,
+            JoiningDate = employee.JoiningDate,
             DepartmentName = employee.Department.Name
         };
     }
@@ -101,6 +105,7 @@ public class EmployeeService  : IEmployeeService
         employee.Name = dto.Name;
         employee.Email = dto.Email;
         employee.Salary = dto.Salary;
+        employee.JoiningDate = dto.JoiningDate;
         employee.DepartmentId = dto.DepartmentId;
         await _employeeRepository.UpdateAsync(employee);
 
