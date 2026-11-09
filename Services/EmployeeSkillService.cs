@@ -22,20 +22,20 @@ public class EmployeeSkillService : IEmployeeSkillService
         _employeeSkillRepository = employeeSkillRepository;
     }
 
-    public async Task AssignSkillAsync(int employeeId, AssignSkillDto dto)
+    public async Task AssignSkillAsync(int employeeId, AssignSkillDto dto, CancellationToken cancellationToken)
     {
-        var employee = await _employeeRepository.GetByIdAsync(employeeId);
+        var employee = await _employeeRepository.GetByIdAsync(employeeId, cancellationToken);
 
         if (employee is null)
             throw new NotFoundException("Employee not found.");
 
-        var skill = await _skillRepository.GetByIdAsync(dto.SkillId);
+        var skill = await _skillRepository.GetByIdAsync(dto.SkillId, cancellationToken);
 
         if (skill is null)
             throw new NotFoundException("Skill not found.");
 
         var existing = await _employeeSkillRepository.GetAsync(
-            employeeId, dto.SkillId);
+            employeeId, dto.SkillId, cancellationToken);
 
         if (existing is not null)
             throw new ConflictException(
@@ -49,19 +49,20 @@ public class EmployeeSkillService : IEmployeeSkillService
             YearsOfExperience = dto.YearsOfExperience
         };
 
-        await _employeeSkillRepository.AddAsync(employeeSkill);
+        await _employeeSkillRepository.AddAsync(employeeSkill, cancellationToken);
     }
 
     public async Task<List<EmployeeSkillResponseDto>> GetEmployeeSkillsAsync(
-        int employeeId)
+        int employeeId,
+        CancellationToken cancellationToken)
     {
-        var employee = await _employeeRepository.GetByIdAsync(employeeId);
+        var employee = await _employeeRepository.GetByIdAsync(employeeId, cancellationToken);
 
         if (employee is null)
             throw new NotFoundException("Employee not found.");
 
         var employeeSkills =
-            await _employeeSkillRepository.GetByEmployeeIdAsync(employeeId);
+            await _employeeSkillRepository.GetByEmployeeIdAsync(employeeId, cancellationToken);
 
         return employeeSkills.Select(es => new EmployeeSkillResponseDto
         {
@@ -76,10 +77,11 @@ public class EmployeeSkillService : IEmployeeSkillService
     public async Task UpdateSkillAsync(
         int employeeId,
         int skillId,
-        UpdateEmployeeSkillDto dto)
+        UpdateEmployeeSkillDto dto,
+        CancellationToken cancellationToken)
     {
         var employeeSkill = await _employeeSkillRepository.GetAsync(
-            employeeId, skillId);
+            employeeId, skillId, cancellationToken);
 
         if (employeeSkill is null)
             throw new NotFoundException(
@@ -88,6 +90,6 @@ public class EmployeeSkillService : IEmployeeSkillService
         employeeSkill.ProficiencyLevel = dto.ProficiencyLevel;
         employeeSkill.YearsOfExperience = dto.YearsOfExperience;
 
-        await _employeeSkillRepository.UpdateAsync(employeeSkill);
+        await _employeeSkillRepository.UpdateAsync(employeeSkill, cancellationToken);
     }
 }

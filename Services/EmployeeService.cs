@@ -20,9 +20,9 @@ public class EmployeeService  : IEmployeeService
         _departmentRepository = departmentRepository;
     }
 
-    public async Task<List<EmployeeResponseDto>> GetAllAsync()
+    public async Task<List<EmployeeResponseDto>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var employees = await _employeeRepository.GetAllAsync();
+        var employees = await _employeeRepository.GetAllAsync(cancellationToken);
 
         return employees.Select(e => new EmployeeResponseDto
         {
@@ -35,9 +35,9 @@ public class EmployeeService  : IEmployeeService
         }).ToList();
     }
 
-    public async Task<EmployeeResponseDto?> GetByIdAsync(int id)
+    public async Task<EmployeeResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var employee = await _employeeRepository.GetByIdAsync(id);
+        var employee = await _employeeRepository.GetByIdAsync(id, cancellationToken);
 
         if(employee is null)
             return null;
@@ -53,16 +53,16 @@ public class EmployeeService  : IEmployeeService
         };
     }
 
-    public async Task<EmployeeResponseDto> CreateAsync(CreateEmployeeDto dto)
+    public async Task<EmployeeResponseDto> CreateAsync(CreateEmployeeDto dto, CancellationToken cancellationToken)
     {
         // Business validation : Department must exist
-        var department = await _departmentRepository.GetByIdAsync(dto.DepartmentId);
+        var department = await _departmentRepository.GetByIdAsync(dto.DepartmentId, cancellationToken);
 
         if(department is null)
             throw new BadRequestException("Department doesn't exist !");
         
         // Business validation: Email must be unique
-        var existingEmployee = await _employeeRepository.GetByEmailAsync(dto.Email);
+        var existingEmployee = await _employeeRepository.GetByEmailAsync(dto.Email, cancellationToken);
 
         if(existingEmployee is not null)
             throw new ConflictException("Email already exists !");
@@ -76,7 +76,7 @@ public class EmployeeService  : IEmployeeService
             DepartmentId = dto.DepartmentId
         };
 
-        await _employeeRepository.AddAsync(employee);
+        await _employeeRepository.AddAsync(employee, cancellationToken);
 
         return new EmployeeResponseDto
         {
@@ -89,17 +89,17 @@ public class EmployeeService  : IEmployeeService
         };
     }
 
-    public async Task<bool> UpdateAsync(int id, UpdateEmployeeDto dto)
+    public async Task<bool> UpdateAsync(int id, UpdateEmployeeDto dto, CancellationToken cancellationToken)
     {
-        var employee = await _employeeRepository.GetByIdAsync(id);
+        var employee = await _employeeRepository.GetByIdAsync(id, cancellationToken);
         if(employee is null)
             return false;
         
-        var department = await _departmentRepository.GetByIdAsync(dto.DepartmentId);
+        var department = await _departmentRepository.GetByIdAsync(dto.DepartmentId, cancellationToken);
         if(department is null)
             throw new BadRequestException("Department doesn't exist !");
 
-        var existingEmployee = await _employeeRepository.GetByEmailAsync(dto.Email);
+        var existingEmployee = await _employeeRepository.GetByEmailAsync(dto.Email, cancellationToken);
         if(existingEmployee is not null && existingEmployee.Id != id)
             throw new ConflictException("Email already exists !");
         
@@ -108,18 +108,18 @@ public class EmployeeService  : IEmployeeService
         employee.Salary = dto.Salary;
         employee.JoiningDate = dto.JoiningDate!.Value; // guaranteed by [Required] on the DTO
         employee.DepartmentId = dto.DepartmentId;
-        await _employeeRepository.UpdateAsync(employee);
+        await _employeeRepository.UpdateAsync(employee, cancellationToken);
 
         return true;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
     {
-        var employee = await _employeeRepository.GetByIdAsync(id);
+        var employee = await _employeeRepository.GetByIdAsync(id, cancellationToken);
         if(employee is null)
             return false;
         
-        await _employeeRepository.DeleteAsync(employee);
+        await _employeeRepository.DeleteAsync(employee, cancellationToken);
 
         return true;
     }

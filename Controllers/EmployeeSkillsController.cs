@@ -18,17 +18,18 @@ public class EmployeeSkillsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AssignSkill(
         int employeeId,
-        AssignSkillDto dto)
+        AssignSkillDto dto,
+        CancellationToken cancellationToken)
     {
-        await _service.AssignSkillAsync(employeeId, dto);
+        await _service.AssignSkillAsync(employeeId, dto, cancellationToken);
 
         return Ok("Skill assigned successfully.");
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetEmployeeSkills(int employeeId)
+    public async Task<IActionResult> GetEmployeeSkills(int employeeId, CancellationToken cancellationToken)
     {
-        var skills = await _service.GetEmployeeSkillsAsync(employeeId);
+        var skills = await _service.GetEmployeeSkillsAsync(employeeId, cancellationToken);
 
         return Ok(skills);
     }
@@ -37,9 +38,10 @@ public class EmployeeSkillsController : ControllerBase
     public async Task<IActionResult> UpdateSkill(
         int employeeId,
         int skillId,
-        UpdateEmployeeSkillDto dto)
+        UpdateEmployeeSkillDto dto,
+        CancellationToken cancellationToken)
     {
-        await _service.UpdateSkillAsync(employeeId, skillId, dto);
+        await _service.UpdateSkillAsync(employeeId, skillId, dto, cancellationToken);
 
         return NoContent();
     }

@@ -18,9 +18,9 @@ public class SkillsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateSkillDto dto)
+    public async Task<IActionResult> Create(CreateSkillDto dto, CancellationToken cancellationToken)
     {
-        var id = await _skillService.CreateAsync(dto);
+        var id = await _skillService.CreateAsync(dto, cancellationToken);
 
         return CreatedAtAction(
             nameof(GetById),
@@ -29,17 +29,17 @@ public class SkillsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var skills = await _skillService.GetAllAsync();
+        var skills = await _skillService.GetAllAsync(cancellationToken);
 
         return Ok(skills);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
-        var skill = await _skillService.GetByIdAsync(id);
+        var skill = await _skillService.GetByIdAsync(id, cancellationToken);
 
         if (skill is null)
             return NotFound();

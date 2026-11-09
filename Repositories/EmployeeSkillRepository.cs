@@ -14,30 +14,30 @@ public class EmployeeSkillRepository : IEmployeeSkillRepository
         _context = context;
     }
 
-    public async Task<List<EmployeeSkill>> GetByEmployeeIdAsync(int employeeId)
+    public async Task<List<EmployeeSkill>> GetByEmployeeIdAsync(int employeeId, CancellationToken cancellationToken)
     {
         return await _context.EmployeeSkills
             .AsNoTracking()
             .Include(es => es.Skill)
             .Where(es => es.EmployeeId == employeeId)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<EmployeeSkill?> GetAsync(int employeeId, int skillId)
+    public async Task<EmployeeSkill?> GetAsync(int employeeId, int skillId, CancellationToken cancellationToken)
     {
         return await _context.EmployeeSkills
             .FirstOrDefaultAsync(es =>
-                es.EmployeeId == employeeId && es.SkillId == skillId);
+                es.EmployeeId == employeeId && es.SkillId == skillId, cancellationToken);
     }
 
-    public async Task AddAsync(EmployeeSkill employeeSkill)
+    public async Task AddAsync(EmployeeSkill employeeSkill, CancellationToken cancellationToken)
     {
-        await _context.EmployeeSkills.AddAsync(employeeSkill);
-        await _context.SaveChangesAsync();
+        await _context.EmployeeSkills.AddAsync(employeeSkill, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateAsync(EmployeeSkill employeeSkill)
+    public async Task UpdateAsync(EmployeeSkill employeeSkill, CancellationToken cancellationToken)
     {
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

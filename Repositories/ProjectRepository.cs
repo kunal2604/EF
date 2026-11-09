@@ -14,25 +14,25 @@ public class ProjectRepository : IProjectRepository
         _context = context;
     }
 
-    public async Task<List<Project>> GetAllAsync()
+    public async Task<List<Project>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Projects
             .Include(p => p.Employees)
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<Project?> GetByIdAsync(int id)
+    public async Task<Project?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         return await _context.Projects
             .Include(p => p.Employees)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
 
-    public async Task AddAsync(Project project)
+    public async Task AddAsync(Project project, CancellationToken cancellationToken)
     {
-        await _context.Projects.AddAsync(project);
+        await _context.Projects.AddAsync(project, cancellationToken);
         
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     } 
 }

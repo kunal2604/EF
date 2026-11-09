@@ -4,7 +4,7 @@ namespace EmployeeManagement.Repositories.Interfaces;
 
 public interface IProjectRepository
 {
-    Task<List<Project>> GetAllAsync();
-    Task<Project?> GetByIdAsync(int id);
-    Task AddAsync(Project project);
+    Task<List<Project>> GetAllAsync(CancellationToken cancellationToken);
+    Task<Project?> GetByIdAsync(int id, CancellationToken cancellationToken);
+    Task AddAsync(Project project, CancellationToken cancellationToken);
 }

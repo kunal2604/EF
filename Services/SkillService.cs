@@ -15,9 +15,9 @@ public class SkillService : ISkillService
         _skillRepository = skillRepository;
     }
 
-    public async Task<int> CreateAsync(CreateSkillDto dto)
+    public async Task<int> CreateAsync(CreateSkillDto dto, CancellationToken cancellationToken)
     {
-        var existingSkills = await _skillRepository.GetAllAsync();
+        var existingSkills = await _skillRepository.GetAllAsync(cancellationToken);
 
         if (existingSkills.Any(s =>
             s.Name.Equals(dto.Name.Trim(), StringComparison.OrdinalIgnoreCase)))
@@ -30,14 +30,14 @@ public class SkillService : ISkillService
             Name = dto.Name.Trim()
         };
 
-        await _skillRepository.AddAsync(skill);
+        await _skillRepository.AddAsync(skill, cancellationToken);
 
         return skill.Id;
     }
 
-    public async Task<List<SkillResponseDto>> GetAllAsync()
+    public async Task<List<SkillResponseDto>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var skills = await _skillRepository.GetAllAsync();
+        var skills = await _skillRepository.GetAllAsync(cancellationToken);
 
         return skills.Select(s => new SkillResponseDto
         {
@@ -46,9 +46,9 @@ public class SkillService : ISkillService
         }).ToList();
     }
 
-    public async Task<SkillResponseDto?> GetByIdAsync(int id)
+    public async Task<SkillResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var skill = await _skillRepository.GetByIdAsync(id);
+        var skill = await _skillRepository.GetByIdAsync(id, cancellationToken);
 
         if (skill is null)
             return null;

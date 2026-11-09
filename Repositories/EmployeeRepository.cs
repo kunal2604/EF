@@ -14,44 +14,44 @@ public class EmployeeRepository : IEmployeeRepository
         _context = context;
     }
 
-    public async Task<List<Employee>> GetAllAsync()
+    public async Task<List<Employee>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Employees
             .Include(e => e.Department)
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<Employee?> GetByIdAsync(int id)
+    public async Task<Employee?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         return await _context.Employees
             .Include(e => e.Department)
             .Include(e => e.Projects)
-            .FirstOrDefaultAsync(e => e.Id == id);
+            .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
-    public async Task<Employee?> GetByEmailAsync(string email)
+    public async Task<Employee?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         return await _context.Employees
-            .FirstOrDefaultAsync(e => e.Email == email);
+            .FirstOrDefaultAsync(e => e.Email == email, cancellationToken);
     }
 
-    public async Task AddAsync(Employee employee)
+    public async Task AddAsync(Employee employee, CancellationToken cancellationToken)
     {
-        await _context.Employees.AddAsync(employee);
+        await _context.Employees.AddAsync(employee, cancellationToken);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateAsync(Employee employee)
+    public async Task UpdateAsync(Employee employee, CancellationToken cancellationToken)
     {
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task DeleteAsync(Employee employee)
+    public async Task DeleteAsync(Employee employee, CancellationToken cancellationToken)
     {
         _context.Employees.Remove(employee);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }
