@@ -5,7 +5,7 @@ namespace EmployeeManagement.DTOs.EmployeeSkills;
 public class UpdateEmployeeSkillDto
 {
     [Required]
-    [MaxLength(100)]
+    [MaxLength(30)]
     public string ProficiencyLevel { get; set; } = string.Empty;
     [Range(0,50)]
     public int YearsOfExperience { get; set; }
