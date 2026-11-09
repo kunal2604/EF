@@ -20,19 +20,12 @@ public class SkillsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateSkillDto dto)
     {
-        try
-        {
-            var id = await _skillService.CreateAsync(dto);
+        var id = await _skillService.CreateAsync(dto);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id },
-                new { id, message = "Skill created successfully." });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
-        }
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id },
+            new { id, message = "Skill created successfully." });
     }
 
     [HttpGet]

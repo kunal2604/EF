@@ -40,47 +40,25 @@ public class EmployeesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateEmployeeDto dto)
     {
-        try
-        {
-            var employee = await _employeeService.CreateAsync(dto);
+        var employee = await _employeeService.CreateAsync(dto);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = employee.Id },
-                employee
-            );
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch(InvalidOperationException ex)
-        {
-            return Conflict(new { message = ex.Message });
-        }
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = employee.Id },
+            employee
+        );
     }
 
     // PUT: api/employees/1
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, UpdateEmployeeDto dto)
     {
-        try
-        {
-            var updated = await _employeeService.UpdateAsync(id, dto);
+        var updated = await _employeeService.UpdateAsync(id, dto);
 
-            if(!updated)
-                return NotFound();
-                
-            return NoContent();
-        }
-        catch(ArgumentException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch(InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
+        if(!updated)
+            return NotFound();
+            
+        return NoContent();
     }
 
     // DELETE: api/employees/1

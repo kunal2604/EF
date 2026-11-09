@@ -52,18 +52,7 @@ public class ProjectsController : ControllerBase
     [HttpPost("{projectId:int}/employees")]
     public async Task<IActionResult> AssignEmployee(int projectId, AssignEmployeeDto dto)
     {
-        try
-        {
-            await _projectService.AssignEmployeeAsync(projectId, dto.EmployeeId);
-            return NoContent();
-        }
-        catch(KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch(InvalidOperationException ex)
-        {
-            return Conflict(new { message = ex.Message});
-        }
+        await _projectService.AssignEmployeeAsync(projectId, dto.EmployeeId);
+        return NoContent();
     }
 }

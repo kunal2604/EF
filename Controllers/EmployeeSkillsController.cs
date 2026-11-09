@@ -20,35 +20,17 @@ public class EmployeeSkillsController : ControllerBase
         int employeeId,
         AssignSkillDto dto)
     {
-        try
-        {
-            await _service.AssignSkillAsync(employeeId, dto);
+        await _service.AssignSkillAsync(employeeId, dto);
 
-            return Ok("Skill assigned successfully.");
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
-        }
+        return Ok("Skill assigned successfully.");
     }
 
     [HttpGet]
     public async Task<IActionResult> GetEmployeeSkills(int employeeId)
     {
-        try
-        {
-            var skills = await _service.GetEmployeeSkillsAsync(employeeId);
+        var skills = await _service.GetEmployeeSkillsAsync(employeeId);
 
-            return Ok(skills);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        return Ok(skills);
     }
 
     [HttpPut("{skillId:int}")]
@@ -57,15 +39,8 @@ public class EmployeeSkillsController : ControllerBase
         int skillId,
         UpdateEmployeeSkillDto dto)
     {
-        try
-        {
-            await _service.UpdateSkillAsync(employeeId, skillId, dto);
+        await _service.UpdateSkillAsync(employeeId, skillId, dto);
 
-            return NoContent();
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
+        return NoContent();
     }
 }
