@@ -119,6 +119,12 @@ public class EmployeeService  : IEmployeeService
         if(employee is null)
             return false;
         
+        // GetByIdAsync already loaded Projects; EF would otherwise throw while tracking
+        // the join rows, before the database ever sees the delete.
+        if(employee.Projects.Count > 0)
+            throw new ConflictException(
+                "This employee can't be deleted while they are assigned to projects. Remove them from the projects first.");
+
         await _employeeRepository.DeleteAsync(employee, cancellationToken);
 
         return true;
