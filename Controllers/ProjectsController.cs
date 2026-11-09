@@ -16,6 +16,7 @@ public class ProjectsController : ControllerBase
     }
 
     // GET: api/projects
+    [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var projects = await _projectService.GetAllAsync(cancellationToken);
