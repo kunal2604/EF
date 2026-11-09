@@ -172,7 +172,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 STEP 4) Implement Project (Employee-Project many to many relationship)
 
-Pull Request: https://github.com/kunal2604/EF/pull/7
+Pull Request: https://github.com/kunal2604/EF/pull/8
 
 dotnet ef migrations add AddProjectsAndEmployeeProjects
 dotnet ef database update
