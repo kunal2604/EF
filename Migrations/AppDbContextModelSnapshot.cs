@@ -81,6 +81,32 @@ namespace EF.Migrations
                     b.ToTable("Employees");
                 });
 
+            modelBuilder.Entity("EmployeeManagement.Models.EmployeeSkill", b =>
+                {
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SkillId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProficiencyLevel")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EmployeeId", "SkillId");
+
+                    b.HasIndex("SkillId");
+
+                    b.ToTable("EmployeeSkills", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_EmployeeSkills_YearsOfExperience", "\"YearsOfExperience\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("EmployeeManagement.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -100,6 +126,27 @@ namespace EF.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.Skill", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("EmployeeProjects", b =>
@@ -128,6 +175,25 @@ namespace EF.Migrations
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("EmployeeManagement.Models.EmployeeSkill", b =>
+                {
+                    b.HasOne("EmployeeManagement.Models.Employee", "Employee")
+                        .WithMany("EmployeeSkills")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("EmployeeManagement.Models.Skill", "Skill")
+                        .WithMany("EmployeeSkills")
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Skill");
+                });
+
             modelBuilder.Entity("EmployeeProjects", b =>
                 {
                     b.HasOne("EmployeeManagement.Models.Employee", null)
@@ -146,6 +212,16 @@ namespace EF.Migrations
             modelBuilder.Entity("EmployeeManagement.Models.Department", b =>
                 {
                     b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.Employee", b =>
+                {
+                    b.Navigation("EmployeeSkills");
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.Skill", b =>
+                {
+                    b.Navigation("EmployeeSkills");
                 });
 #pragma warning restore 612, 618
         }
