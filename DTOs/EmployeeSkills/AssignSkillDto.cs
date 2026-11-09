@@ -4,6 +4,7 @@ namespace EmployeeManagement.DTOs.EmployeeSkills;
 
 public class AssignSkillDto
 {
+    [Range(1, int.MaxValue)]
     public int SkillId { get; set; }
     [Required]
     [MaxLength(30)]
