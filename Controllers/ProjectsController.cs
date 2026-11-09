@@ -1,4 +1,3 @@
-using EmployeeManagement.Data.Projects;
 using EmployeeManagement.DTOs.Projects;
 using EmployeeManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
