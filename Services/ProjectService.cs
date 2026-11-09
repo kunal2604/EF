@@ -1,9 +1,7 @@
-using EmployeeManagement.Data.Projects;
 using EmployeeManagement.DTOs.Projects;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services.Interfaces;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace EmployeeManagement.Services;
 
