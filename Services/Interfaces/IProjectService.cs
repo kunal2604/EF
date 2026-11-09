@@ -1,6 +1,4 @@
-using EmployeeManagement.Data.Projects;
 using EmployeeManagement.DTOs.Projects;
-using EmployeeManagement.Models;
 
 namespace EmployeeManagement.Services.Interfaces;
 

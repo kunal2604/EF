@@ -1,4 +1,4 @@
-namespace EmployeeManagement.Data.Projects;
+namespace EmployeeManagement.DTOs.Projects;
 
 public class CreateProjectDto
 {
