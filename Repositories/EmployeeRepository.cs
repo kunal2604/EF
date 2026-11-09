@@ -26,6 +26,7 @@ public class EmployeeRepository : IEmployeeRepository
     {
         return await _context.Employees
             .Include(e => e.Department)
+            .Include(e => e.Projects)
             .FirstOrDefaultAsync(e => e.Id == id);
     }
 
