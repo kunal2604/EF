@@ -9,6 +9,8 @@ public class AppDbContext : DbContext
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Skill> Skills => Set<Skill>();
+    public DbSet<EmployeeSkill> EmployeeSkills => Set<EmployeeSkill>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,7 +55,7 @@ public class AppDbContext : DbContext
         });
     
         /* 
-        Implicit Join Entity (instead of Explicit Join Entity, which would need a separate class 'EmployeeProject') 
+        Implicit Join Entity for Employee-Project (instead of Explicit Join Entity, which would need a separate class 'EmployeeProject'). 
         */ 
         modelBuilder.Entity<Employee>()
             .HasMany(e => e.Projects)
@@ -76,5 +78,51 @@ public class AppDbContext : DbContext
                     j.ToTable("EmployeeProjects");
                 }    
             );
+        
+        modelBuilder.Entity<Skill>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            
+            entity.Property(s => s.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+            
+            entity.HasIndex(s => s.Name)
+                .IsUnique();
+        });
+        /* 
+        Explicit Join Entity for Employee-Skill relationship.
+        */ 
+        modelBuilder.Entity<EmployeeSkill>(entity =>
+        {
+            // Composite Primary Key
+            entity.HasKey(es => new { es.EmployeeId, es.SkillId });
+
+            // Employee -> EmployeeSkills (One-to-many)
+            entity.HasOne(es => es.Employee)
+                .WithMany(e => e.EmployeeSkills)
+                .HasForeignKey(es => es.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Skill -> EmployeeSkills (One-to-Many)
+            entity.HasOne(es => es.Skill)
+                .WithMany(s => s.EmployeeSkills)
+                .HasForeignKey(es => es.SkillId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            // ProficiencyLevel configuration
+            entity.Property(es => es.ProficiencyLevel)
+                .IsRequired()
+                .HasMaxLength(30);
+            
+            // YearsOfExperience configuration
+            entity.ToTable("EmployeeSkills", table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_EmployeeSkills_YearsOfExperience",
+                    "\"YearsOfExperience\" >= 0"
+                );
+            });
+        });
     }
 }

@@ -12,4 +12,5 @@ public class Employee
     // Navigation Property
     public Department Department { get; set; } = null!;
     public ICollection<Project> Projects { get; set; } = new List<Project>();
+    public ICollection<EmployeeSkill> EmployeeSkills { get; set; } = new List<EmployeeSkill>();
 }
