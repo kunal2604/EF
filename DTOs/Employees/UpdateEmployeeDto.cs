@@ -16,7 +16,9 @@ public class UpdateEmployeeDto
     [Range(typeof(decimal), "0", "9999999999999999.99")]
     public decimal Salary { get; set; }
 
-    public DateOnly JoiningDate { get; set; }
+    /// <summary>Required: PUT replaces the whole resource, so omitting it would erase the stored date.</summary>
+    [Required]
+    public DateOnly? JoiningDate { get; set; }
 
     [Range(1, int.MaxValue)]
     public int DepartmentId { get; set; }

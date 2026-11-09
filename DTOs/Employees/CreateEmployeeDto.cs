@@ -16,7 +16,8 @@ public class CreateEmployeeDto
     [Range(typeof(decimal), "0", "9999999999999999.99")]
     public decimal Salary { get; set; }
 
-    public DateOnly JoiningDate { get; set; }
+    /// <summary>Optional. Defaults to today (UTC) when omitted.</summary>
+    public DateOnly? JoiningDate { get; set; }
 
     [Range(1, int.MaxValue)]
     public int DepartmentId { get; set; }

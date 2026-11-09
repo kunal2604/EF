@@ -72,7 +72,7 @@ public class EmployeeService  : IEmployeeService
             Name = dto.Name,
             Email = dto.Email,
             Salary = dto.Salary,
-            JoiningDate = dto.JoiningDate,
+            JoiningDate = dto.JoiningDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
             DepartmentId = dto.DepartmentId
         };
 
@@ -106,7 +106,7 @@ public class EmployeeService  : IEmployeeService
         employee.Name = dto.Name;
         employee.Email = dto.Email;
         employee.Salary = dto.Salary;
-        employee.JoiningDate = dto.JoiningDate;
+        employee.JoiningDate = dto.JoiningDate!.Value; // guaranteed by [Required] on the DTO
         employee.DepartmentId = dto.DepartmentId;
         await _employeeRepository.UpdateAsync(employee);
 
