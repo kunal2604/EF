@@ -16,6 +16,9 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Employee.Email uses the case-insensitive "citext" type, which needs this extension.
+        modelBuilder.HasPostgresExtension("citext");
+
         modelBuilder.Entity<Employee>(entity =>
         {
             entity.HasKey(e => e.Id);
