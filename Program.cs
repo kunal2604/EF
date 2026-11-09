@@ -19,11 +19,15 @@ builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
 // Configure PostgreSQL
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' is not configured. " +
+        "In development run: dotnet user-secrets set \"ConnectionStrings:DefaultConnection\" \"<value>\" " +
+        "(see the Setup section of README.md). In other environments set the " +
+        "ConnectionStrings__DefaultConnection environment variable.");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    )
-);
+    options.UseNpgsql(connectionString));
 
 // Register repositories
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();

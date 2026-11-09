@@ -1,6 +1,67 @@
 @EF_HostAddress = http://localhost:5085
+# Change the port if you start the app with --urls.
+# Run these top to bottom; replace ids with the ones returned.
 
-GET {{EF_HostAddress}}/weatherforecast/
+### Departments
+GET {{EF_HostAddress}}/api/departments
 Accept: application/json
 
 ###
+POST {{EF_HostAddress}}/api/departments
+Content-Type: application/json
+
+{ "name": "Engineering" }
+
+### Employees
+GET {{EF_HostAddress}}/api/employees
+
+###
+POST {{EF_HostAddress}}/api/employees
+Content-Type: application/json
+
+{
+  "name": "Asha Rao",
+  "email": "asha@example.com",
+  "salary": 50000,
+  "joiningDate": "2024-01-15",
+  "departmentId": 1
+}
+
+###
+PUT {{EF_HostAddress}}/api/employees/1
+Content-Type: application/json
+
+{
+  "name": "Asha Rao",
+  "email": "asha@example.com",
+  "salary": 55000,
+  "joiningDate": "2024-01-15",
+  "departmentId": 1
+}
+
+###
+DELETE {{EF_HostAddress}}/api/employees/1
+
+### Projects
+POST {{EF_HostAddress}}/api/projects
+Content-Type: application/json
+
+{ "name": "Apollo", "description": "Sample project" }
+
+###
+POST {{EF_HostAddress}}/api/projects/1/employees
+Content-Type: application/json
+
+{ "employeeId": 1 }
+
+### Skills
+POST {{EF_HostAddress}}/api/skills
+Content-Type: application/json
+
+{ "name": "C#" }
+
+###
+POST {{EF_HostAddress}}/api/employees/1/skills
+Content-Type: application/json
+
+{ "skillId": 1, "proficiencyLevel": "Advanced", "yearsOfExperience": 3 }
