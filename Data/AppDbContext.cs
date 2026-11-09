@@ -120,7 +120,7 @@ public class AppDbContext : DbContext
             {
                 table.HasCheckConstraint(
                     "CK_EmployeeSkills_YearsOfExperience",
-                    "\"YearsOfExperience\" >/= 0"
+                    "\"YearsOfExperience\" >= 0"
                 );
             });
         });

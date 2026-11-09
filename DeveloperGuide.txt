@@ -170,9 +170,20 @@ ________________________________________________________________________________
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ---------------------------------------------------------------------------------------------
 
-STEP 4) Implement Project (Employee-Project many to many relationship)
+STEP 4) Implement Project (Employee-Project many to many relationship using implicit join)
 
 Pull Request: https://github.com/kunal2604/EF/pull/8
 
 dotnet ef migrations add AddProjectsAndEmployeeProjects
+dotnet ef database update
+
+_____________________________________________________________________________________________
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+---------------------------------------------------------------------------------------------
+
+STEP 5) Implement Employee Skill (using explicit join)
+
+Pull Request: https://github.com/kunal2604/EF/pull/10
+
+dotnet ef migrations add AddEmployeeSkills
 dotnet ef database update
