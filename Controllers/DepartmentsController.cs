@@ -18,18 +18,18 @@ public class DepartmentsController : ControllerBase
 
     // GET: api/departments
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var departments = await _departmentService.GetAllAsync();
+        var departments = await _departmentService.GetAllAsync(cancellationToken);
 
         return Ok(departments);
     }
 
     // POST: api/departments
     [HttpPost]
-    public async Task<IActionResult> Create(CreateDepartmentDto dto)
+    public async Task<IActionResult> Create(CreateDepartmentDto dto, CancellationToken cancellationToken)
     {
-        var department = await _departmentService.CreateAsync(dto);
+        var department = await _departmentService.CreateAsync(dto, cancellationToken);
 
         return Ok(department);
     }

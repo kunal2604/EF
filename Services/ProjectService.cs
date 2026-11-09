@@ -19,9 +19,9 @@ public class ProjectService : IProjectService
         _employeeRepository = employeeRepository;
     }
 
-    public async Task<List<ProjectResponseDto>> GetAllAsync()
+    public async Task<List<ProjectResponseDto>> GetAllAsync(CancellationToken cancellationToken)
     {
-        var projects = await _projectRepository.GetAllAsync();
+        var projects = await _projectRepository.GetAllAsync(cancellationToken);
 
         return projects.Select(p => new ProjectResponseDto
         {
@@ -32,9 +32,9 @@ public class ProjectService : IProjectService
         }).ToList();
     }
 
-    public async Task<ProjectResponseDto?> GetByIdAsync(int id)
+    public async Task<ProjectResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var project = await _projectRepository.GetByIdAsync(id);
+        var project = await _projectRepository.GetByIdAsync(id, cancellationToken);
 
         if(project is null)
             return null;
@@ -48,7 +48,7 @@ public class ProjectService : IProjectService
         };
     }
 
-    public async Task<ProjectResponseDto> CreateAsync(CreateProjectDto dto)
+    public async Task<ProjectResponseDto> CreateAsync(CreateProjectDto dto, CancellationToken cancellationToken)
     {
         var project = new Project
         {
@@ -56,7 +56,7 @@ public class ProjectService : IProjectService
             Description = dto.Description
         };
 
-        await _projectRepository.AddAsync(project);
+        await _projectRepository.AddAsync(project, cancellationToken);
 
         return new ProjectResponseDto
         {
@@ -66,14 +66,14 @@ public class ProjectService : IProjectService
         };
     }
 
-    public async Task AssignEmployeeAsync(int projectId, int employeeId)
+    public async Task AssignEmployeeAsync(int projectId, int employeeId, CancellationToken cancellationToken)
     {
-        var project = await _projectRepository.GetByIdAsync(projectId);
+        var project = await _projectRepository.GetByIdAsync(projectId, cancellationToken);
 
         if(project is null)
             throw new NotFoundException("Project not found !");
 
-        var employee = await _employeeRepository.GetByIdAsync(employeeId);
+        var employee = await _employeeRepository.GetByIdAsync(employeeId, cancellationToken);
 
         if(employee is null)
             throw new NotFoundException("Employee not found !");
@@ -83,6 +83,6 @@ public class ProjectService : IProjectService
         
         employee.Projects.Add(project);
 
-        await _employeeRepository.UpdateAsync(employee);
+        await _employeeRepository.UpdateAsync(employee, cancellationToken);
     }
 }

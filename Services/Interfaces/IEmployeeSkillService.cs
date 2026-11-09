@@ -4,13 +4,15 @@ namespace EmployeeManagement.Services.Interfaces;
 
 public interface IEmployeeSkillService
 {
-    Task AssignSkillAsync(int employeeId, AssignSkillDto dto);
+    Task AssignSkillAsync(int employeeId, AssignSkillDto dto, CancellationToken cancellationToken);
 
     Task<List<EmployeeSkillResponseDto>> GetEmployeeSkillsAsync(
-        int employeeId);
+        int employeeId,
+        CancellationToken cancellationToken);
 
     Task UpdateSkillAsync(
         int employeeId,
         int skillId,
-        UpdateEmployeeSkillDto dto);
+        UpdateEmployeeSkillDto dto,
+        CancellationToken cancellationToken);
 }

@@ -14,22 +14,22 @@ public class SkillRepository: ISkillRepository
         _context = context;
     }
 
-    public async Task<List<Skill>> GetAllAsync()
+    public async Task<List<Skill>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Skills
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<Skill?> GetByIdAsync(int id)
+    public async Task<Skill?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         return await _context.Skills
-            .FirstOrDefaultAsync(s => s.Id == id);
+            .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
     }
 
-    public async Task AddAsync(Skill skill)
+    public async Task AddAsync(Skill skill, CancellationToken cancellationToken)
     {
-        await _context.Skills.AddAsync(skill);
-        await _context.SaveChangesAsync();
+        await _context.Skills.AddAsync(skill, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

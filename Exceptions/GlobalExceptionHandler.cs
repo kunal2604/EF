@@ -16,6 +16,17 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         Exception exception,
         CancellationToken cancellationToken)
     {
+        // The client disconnected and the request token cancelled the work in flight.
+        // That's normal, not an error: nobody is left to receive a response.
+        if (exception is OperationCanceledException && httpContext.RequestAborted.IsCancellationRequested)
+        {
+            logger.LogDebug("Request cancelled by client: {Method} {Path}",
+                httpContext.Request.Method, httpContext.Request.Path);
+
+            httpContext.Response.StatusCode = 499; // non-standard "client closed request"
+            return true;
+        }
+
         ProblemDetails problem;
 
         if (exception is AppException appException)

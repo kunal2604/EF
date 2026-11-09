@@ -4,7 +4,7 @@ namespace EmployeeManagement.Services.Interfaces;
 
 public interface IDepartmentService
 {
-    Task<List<DepartmentResponseDto>> GetAllAsync();
+    Task<List<DepartmentResponseDto>> GetAllAsync(CancellationToken cancellationToken);
 
-    Task<DepartmentResponseDto> CreateAsync(CreateDepartmentDto dto);
+    Task<DepartmentResponseDto> CreateAsync(CreateDepartmentDto dto, CancellationToken cancellationToken);
 }

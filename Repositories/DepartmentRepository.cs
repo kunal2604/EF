@@ -14,23 +14,23 @@ public class DepartmentRepository : IDepartmentRepository
         _context = context;
     }
 
-    public async Task<List<Department>> GetAllAsync()
+    public async Task<List<Department>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await _context.Departments
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<Department?> GetByIdAsync(int id)
+    public async Task<Department?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
         return await _context.Departments
-            .FirstOrDefaultAsync(d => d.Id == id);
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
     }
 
-    public async Task AddAsync(Department department)
+    public async Task AddAsync(Department department, CancellationToken cancellationToken)
     {
-        await _context.Departments.AddAsync(department);
+        await _context.Departments.AddAsync(department, cancellationToken);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }
