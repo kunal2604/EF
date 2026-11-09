@@ -144,6 +144,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ---------------------------------------------------------------------------------------------
 
 STEP 2) Refactor API into layered architecture with repository and service
+
 Pull Request: https://github.com/kunal2604/EF/pull/5/changes
 
 _____________________________________________________________________________________________
@@ -151,6 +152,8 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ---------------------------------------------------------------------------------------------
 
 STEP 3) Add new property to Employee: JoiningDate
+
+Pull Request: https://github.com/kunal2604/EF/pull/7
 
 A) # Update Employee class, service, DTO etc.
 
@@ -162,3 +165,14 @@ dotnet ef database update
 
 # Now run the project and test APIs
 dotnet run --urls http://localhost:5080
+
+_____________________________________________________________________________________________
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+---------------------------------------------------------------------------------------------
+
+STEP 4) Implement Project (Employee-Project many to many relationship)
+
+Pull Request: https://github.com/kunal2604/EF/pull/7
+
+dotnet ef migrations add AddProjectsAndEmployeeProjects
+dotnet ef database update
