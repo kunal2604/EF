@@ -1,3 +1,4 @@
+using EmployeeManagement.Exceptions;
 using EmployeeManagement.DTOs.EmployeeSkills;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
@@ -26,18 +27,18 @@ public class EmployeeSkillService : IEmployeeSkillService
         var employee = await _employeeRepository.GetByIdAsync(employeeId);
 
         if (employee is null)
-            throw new KeyNotFoundException("Employee not found.");
+            throw new NotFoundException("Employee not found.");
 
         var skill = await _skillRepository.GetByIdAsync(dto.SkillId);
 
         if (skill is null)
-            throw new KeyNotFoundException("Skill not found.");
+            throw new NotFoundException("Skill not found.");
 
         var existing = await _employeeSkillRepository.GetAsync(
             employeeId, dto.SkillId);
 
         if (existing is not null)
-            throw new InvalidOperationException(
+            throw new ConflictException(
                 "This skill is already assigned to the employee.");
 
         var employeeSkill = new EmployeeSkill
@@ -57,7 +58,7 @@ public class EmployeeSkillService : IEmployeeSkillService
         var employee = await _employeeRepository.GetByIdAsync(employeeId);
 
         if (employee is null)
-            throw new KeyNotFoundException("Employee not found.");
+            throw new NotFoundException("Employee not found.");
 
         var employeeSkills =
             await _employeeSkillRepository.GetByEmployeeIdAsync(employeeId);
@@ -81,7 +82,7 @@ public class EmployeeSkillService : IEmployeeSkillService
             employeeId, skillId);
 
         if (employeeSkill is null)
-            throw new KeyNotFoundException(
+            throw new NotFoundException(
                 "Employee skill assignment not found.");
 
         employeeSkill.ProficiencyLevel = dto.ProficiencyLevel;

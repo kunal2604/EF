@@ -1,3 +1,4 @@
+using EmployeeManagement.Exceptions;
 using EmployeeManagement.DTOs.EmployeeSkills;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
@@ -21,7 +22,7 @@ public class SkillService : ISkillService
         if (existingSkills.Any(s =>
             s.Name.Equals(dto.Name.Trim(), StringComparison.OrdinalIgnoreCase)))
         {
-            throw new InvalidOperationException("Skill already exists.");
+            throw new ConflictException("Skill already exists.");
         }
 
         var skill = new Skill

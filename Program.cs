@@ -1,4 +1,5 @@
 using EmployeeManagement.Data;
+using EmployeeManagement.Exceptions;
 using EmployeeManagement.Repositories;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services;
@@ -9,6 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add Controllers
 builder.Services.AddControllers();
+
+// Global error handling (RFC 7807 problem details)
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Configure PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -32,6 +37,8 @@ builder.Services.AddScoped<IEmployeeSkillService, EmployeeSkillService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 app.MapControllers();
 

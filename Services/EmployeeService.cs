@@ -1,4 +1,5 @@
 using EmployeeManagement.DTOs.Employees;
+using EmployeeManagement.Exceptions;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services.Interfaces;
@@ -58,13 +59,13 @@ public class EmployeeService  : IEmployeeService
         var department = await _departmentRepository.GetByIdAsync(dto.DepartmentId);
 
         if(department is null)
-            throw new ArgumentException("Department doesn't exist !");
+            throw new BadRequestException("Department doesn't exist !");
         
         // Business validation: Email must be unique
         var existingEmployee = await _employeeRepository.GetByEmailAsync(dto.Email);
 
         if(existingEmployee is not null)
-            throw new InvalidOperationException("Email already exists !");
+            throw new ConflictException("Email already exists !");
         
         var employee = new Employee
         {
@@ -84,7 +85,7 @@ public class EmployeeService  : IEmployeeService
             Email = employee.Email,
             Salary = employee.Salary,
             JoiningDate = employee.JoiningDate,
-            DepartmentName = employee.Department.Name
+            DepartmentName = department.Name
         };
     }
 
@@ -96,11 +97,11 @@ public class EmployeeService  : IEmployeeService
         
         var department = await _departmentRepository.GetByIdAsync(dto.DepartmentId);
         if(department is null)
-            throw new ArgumentException("Department doesn't exist !");
+            throw new BadRequestException("Department doesn't exist !");
 
         var existingEmployee = await _employeeRepository.GetByEmailAsync(dto.Email);
         if(existingEmployee is not null && existingEmployee.Id != id)
-            throw new InvalidOperationException("Email already exists !");
+            throw new ConflictException("Email already exists !");
         
         employee.Name = dto.Name;
         employee.Email = dto.Email;

@@ -1,3 +1,4 @@
+using EmployeeManagement.Exceptions;
 using EmployeeManagement.DTOs.Projects;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
@@ -70,15 +71,15 @@ public class ProjectService : IProjectService
         var project = await _projectRepository.GetByIdAsync(projectId);
 
         if(project is null)
-            throw new KeyNotFoundException("Project not found !");
+            throw new NotFoundException("Project not found !");
 
         var employee = await _employeeRepository.GetByIdAsync(employeeId);
 
         if(employee is null)
-            throw new KeyNotFoundException("Employee not found !");
+            throw new NotFoundException("Employee not found !");
         
         if(employee.Projects.Any(p => p.Id == projectId))
-            throw new InvalidOperationException("Employee is already assigned to this prject !");
+            throw new ConflictException("Employee is already assigned to this project !");
         
         employee.Projects.Add(project);
 

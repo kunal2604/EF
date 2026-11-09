@@ -13,7 +13,7 @@ public class CreateEmployeeDto
     [StringLength(150)]
     public string Email { get; set; } = string.Empty;
 
-    [Range(0, 999999999999999.99)]
+    [Range(typeof(decimal), "0", "9999999999999999.99")]
     public decimal Salary { get; set; }
 
     public DateOnly JoiningDate { get; set; }
