@@ -6,6 +6,6 @@ public class EmployeeSkill
     public int SkillId { get; set; }
     public string ProficiencyLevel { get; set; } = string.Empty;
     public int YearsOfExperience { get; set; }
-    public Employee Employee { get; set; } = null;
-    public Skill Skill { get; set; } = null;
+    public Employee Employee { get; set; } = null!;
+    public Skill Skill { get; set; } = null!;
 }
