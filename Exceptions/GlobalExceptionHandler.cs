@@ -50,6 +50,17 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 Detail = DescribeUniqueViolation(pg.ConstraintName)
             };
         }
+        else if (exception is DbUpdateException { InnerException: PostgresException fk }
+                 && fk.SqlState is PostgresErrorCodes.RestrictViolation or PostgresErrorCodes.ForeignKeyViolation)
+        {
+            // Restrict on delete (23001) or a missing/still-referenced row (23503).
+            problem = new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Conflict",
+                Detail = DescribeForeignKeyViolation(fk.ConstraintName, httpContext.Request.Method)
+            };
+        }
         else
         {
             // Unexpected: log everything, but don't leak details to the client.
@@ -68,6 +79,17 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         return true;
     }
+
+    private static string DescribeForeignKeyViolation(string? constraintName, string httpMethod) => constraintName switch
+    {
+        "FK_EmployeeSkills_Employees_EmployeeId" =>
+            "This employee can't be deleted while skills are assigned to them. Remove their skills first.",
+        "FK_EmployeeProjects_Employees_EmployeeId" =>
+            "This employee can't be deleted while they are assigned to projects. Remove them from the projects first.",
+        _ when HttpMethods.IsDelete(httpMethod) =>
+            "This record can't be deleted because other records still reference it.",
+        _ => "A record referenced by this request doesn't exist or was removed."
+    };
 
     private static string DescribeUniqueViolation(string? constraintName) => constraintName switch
     {
