@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace EmployeeManagement.Exceptions;
 
@@ -25,6 +27,18 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 Detail = appException.Message
             };
         }
+        else if (exception is DbUpdateException { InnerException: PostgresException pg }
+                 && pg.SqlState == PostgresErrorCodes.UniqueViolation)
+        {
+            // Two concurrent requests can both pass a service-level "already exists"
+            // check; the unique index is the real guard, so report it as a conflict.
+            problem = new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Conflict",
+                Detail = DescribeUniqueViolation(pg.ConstraintName)
+            };
+        }
         else
         {
             // Unexpected: log everything, but don't leak details to the client.
@@ -43,4 +57,13 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         return true;
     }
+
+    private static string DescribeUniqueViolation(string? constraintName) => constraintName switch
+    {
+        "IX_Employees_Email" => "Email already exists !",
+        "IX_Skills_Name" => "Skill already exists.",
+        "PK_EmployeeSkills" => "This skill is already assigned to the employee.",
+        "PK_EmployeeProjects" => "Employee is already assigned to this project !",
+        _ => "A record with the same unique value already exists."
+    };
 }
