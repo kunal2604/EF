@@ -86,6 +86,8 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             "This employee can't be deleted while skills are assigned to them. Remove their skills first.",
         "FK_EmployeeProjects_Employees_EmployeeId" =>
             "This employee can't be deleted while they are assigned to projects. Remove them from the projects first.",
+        "FK_Employees_Departments_DepartmentId" when HttpMethods.IsDelete(httpMethod) =>
+            "This department can't be deleted while employees belong to it. Move those employees to another department (or delete them) first.",
         "FK_EmployeeSkills_Skills_SkillId" when HttpMethods.IsDelete(httpMethod) =>
             "This skill can't be deleted while employees have it assigned. Remove it from those employees first.",
         "FK_EmployeeProjects_Projects_ProjectId" when HttpMethods.IsDelete(httpMethod) =>
