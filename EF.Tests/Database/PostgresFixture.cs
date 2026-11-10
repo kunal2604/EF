@@ -15,13 +15,55 @@ namespace EF.Tests.Database;
 public sealed class PostgresFixture : IAsyncLifetime
 {
     /// <summary>
-    /// Override with the TEST_POSTGRES_IMAGE environment variable, e.g. postgres:18.
+    /// Override with the TEST_POSTGRES_IMAGE environment variable, e.g. postgres:17.
     /// PostgreSQL versions differ in error codes (see ConstraintTests), so run both.
     /// </summary>
     public static string Image { get; } =
-        Environment.GetEnvironmentVariable("TEST_POSTGRES_IMAGE") is { Length: > 0 } image ? image : "postgres:17";
+        Environment.GetEnvironmentVariable("TEST_POSTGRES_IMAGE") is { Length: > 0 } image ? image : "postgres:18";
 
-    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder(Image).Build();
+    /// <summary>
+    /// Set TEST_POSTGRES_KEEP=1 to leave the container running after the tests, so you can
+    /// look at the data (see README). It is then named <see cref="KeptContainerName"/> and
+    /// listens on localhost:<see cref="KeptHostPort"/>.
+    /// </summary>
+    public static bool Keep { get; } = Environment.GetEnvironmentVariable("TEST_POSTGRES_KEEP") is "1" or "true";
+
+    public const string KeptContainerName = "ef-tests-postgres";
+    public const int KeptHostPort = 54329;
+
+    private readonly PostgreSqlContainer _container = CreateContainer();
+
+    private static PostgreSqlContainer CreateContainer()
+    {
+        var builder = new PostgreSqlBuilder(Image);
+
+        if (Keep)
+        {
+            RemoveLeftoverContainer(); // from a previous kept run
+            builder = builder
+                .WithName(KeptContainerName)
+                .WithPortBinding(KeptHostPort, 5432)
+                .WithCleanUp(false); // don't let Testcontainers' reaper remove it
+        }
+
+        return builder.Build();
+    }
+
+    private static void RemoveLeftoverContainer()
+    {
+        try
+        {
+            using var process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("docker", $"rm -f {KeptContainerName}")
+            {
+                RedirectStandardOutput = true, RedirectStandardError = true
+            });
+            process?.WaitForExit(15_000);
+        }
+        catch
+        {
+            // No docker CLI on the path: the start below reports the real problem.
+        }
+    }
 
     public string ConnectionString => _container.GetConnectionString();
 
@@ -52,7 +94,10 @@ public sealed class PostgresFixture : IAsyncLifetime
     public async Task DisposeAsync()
     {
         Api?.Dispose();
-        await _container.DisposeAsync();
+
+        // When kept, the container is deliberately left running for inspection.
+        if (!Keep)
+            await _container.DisposeAsync();
     }
 }
 

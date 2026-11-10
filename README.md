@@ -134,8 +134,102 @@ PostgreSQL versions report some errors differently (a blocked delete is error 23
 PostgreSQL 18 but 23503 on 17), so check against more than one version:
 
 ```bash
-TEST_POSTGRES_IMAGE=postgres:18 dotnet test EF.Tests   # default image is postgres:17
+TEST_POSTGRES_IMAGE=postgres:17 dotnet test EF.Tests   # default image is postgres:18
 ```
+
+### Looking at the test database
+
+The test container is deleted when the run ends. To keep it so you can inspect it, set `TEST_POSTGRES_KEEP=1`.
+Run a test that leaves data behind (most tests clean up or are reset by the next one), for example:
+
+```bash
+TEST_POSTGRES_KEEP=1 dotnet test EF.Tests --filter "FullyQualifiedName~Paging_over_25_employees"
+```
+
+Then connect, using either:
+
+```bash
+docker exec -it ef-tests-postgres psql -U postgres        # no psql install needed
+psql -h localhost -p 54329 -U postgres                     # from your machine; password: postgres
+```
+
+A GUI tool (DBeaver, pgAdmin, the VS Code PostgreSQL extension) works with host `localhost`, port `54329`,
+database `postgres`, user `postgres`, password `postgres`. Useful queries: `\dt`, `select * from "Employees";`.
+
+Each test run empties the tables first, so you see what the last test left behind. Running again replaces the kept container
+automatically. Remove it when you are done: `docker rm -f ef-tests-postgres`.
+
+### Docker cheat sheet
+
+Run from the repo root. If you get `permission denied` on the Docker socket, your terminal does not have the `docker`
+group yet: log out and back in, or prefix a command with `sg docker -c '...'`.
+
+**Containers and images**
+
+```bash
+docker ps                          # running containers
+docker ps -a                       # all containers, including stopped
+docker images                      # downloaded images
+docker logs ef-tests-postgres      # container output
+docker stop ef-tests-postgres      # stop it
+docker start ef-tests-postgres     # start a stopped one
+docker rm -f ef-tests-postgres     # stop and delete it
+docker pull postgres:18            # download an image by hand (tests do this automatically)
+docker rmi postgres:17             # delete an image
+docker system df                   # disk used by Docker
+docker system prune                # remove stopped containers and unused data
+```
+
+**Running the tests**
+
+```bash
+dotnet test EF.Tests                                         # everything (needs Docker)
+dotnet test EF.Tests --filter "Category=Database"            # database tests only
+dotnet test EF.Tests --filter "Category!=Database"           # no Docker needed
+TEST_POSTGRES_IMAGE=postgres:17 dotnet test EF.Tests         # another PostgreSQL version
+TEST_POSTGRES_KEEP=1 dotnet test EF.Tests --filter "FullyQualifiedName~Skill_proficiency_and_years_round_trip"   # keep the container
+```
+
+**Connecting to the kept database** (user, password and database are all `postgres`)
+
+```bash
+docker exec -it ef-tests-postgres psql -U postgres           # shell inside the container
+psql -h localhost -p 54329 -U postgres                        # from your machine
+docker exec ef-tests-postgres psql -U postgres -c 'select * from "Employees";'   # one query
+```
+
+Connection string for a GUI or app: `Host=localhost;Port=54329;Database=postgres;Username=postgres;Password=postgres`.
+These are the default credentials of the Testcontainers PostgreSQL module, not something set in this project.
+
+**Inside psql.** Table names are case-sensitive, so keep the double quotes.
+
+```sql
+\dt                                  -- list tables
+\d "Employees"                       -- columns, indexes and constraints
+\q                                   -- quit
+
+select * from "Employees";           -- also "Departments", "Projects", "Skills",
+                                     -- "EmployeeSkills", "EmployeeProjects", "__EFMigrationsHistory"
+select count(*) from "Employees";
+select e."Name", d."Name" as dept
+  from "Employees" e join "Departments" d on d."Id" = e."DepartmentId";
+select s."Name", es."ProficiencyLevel", es."YearsOfExperience"
+  from "EmployeeSkills" es join "Skills" s on s."Id" = es."SkillId";
+```
+
+**Deleting data.** This only affects the throwaway test database.
+
+```sql
+delete from "Skills" where "Id" = 1;                 -- one row (fails if still referenced)
+truncate "EmployeeSkills";                           -- empty one table
+truncate "EmployeeProjects", "EmployeeSkills", "Employees", "Departments", "Projects", "Skills"
+  restart identity cascade;                          -- empty everything
+drop table "EmployeeSkills";                         -- drop a table
+drop table "Employees" cascade;                      -- also drops dependent objects
+```
+
+The simplest way to wipe everything is `docker rm -f ef-tests-postgres`; the next test run creates a fresh database with the full schema.
+Your development database (port 5432, user secrets) is a separate server: do not run `drop` or `truncate` there.
 
 The test project lives in a subfolder and is excluded from `EF.csproj`, so
 `dotnet build`, `dotnet run` and `dotnet ef` at the repo root are unaffected.
