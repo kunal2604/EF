@@ -10,6 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- The test project lives in a subfolder; keep its files out of this project. -->
+    <Compile Remove="EF.Tests/**" />
+    <Content Remove="EF.Tests/**" />
+    <EmbeddedResource Remove="EF.Tests/**" />
+    <None Remove="EF.Tests/**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

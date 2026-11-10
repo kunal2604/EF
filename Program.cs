@@ -63,3 +63,6 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 app.Run();
+
+// Lets the test project use WebApplicationFactory<Program>.
+public partial class Program;
