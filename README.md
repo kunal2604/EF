@@ -79,8 +79,8 @@ In Development only:
 |---|---|
 | Departments | `GET`, `POST /api/departments` |
 | Employees | `GET`, `POST /api/employees`; `GET`, `PUT`, `DELETE /api/employees/{id}` |
-| Projects | `GET`, `POST /api/projects`; `GET /api/projects/{id}`; `POST /api/projects/{projectId}/employees`; `DELETE /api/projects/{projectId}/employees/{employeeId}` |
-| Skills | `GET`, `POST /api/skills`; `GET /api/skills/{id}` |
+| Projects | `GET`, `POST /api/projects`; `GET`, `DELETE /api/projects/{id}`; `POST /api/projects/{projectId}/employees`; `DELETE /api/projects/{projectId}/employees/{employeeId}` |
+| Skills | `GET`, `POST /api/skills`; `GET`, `DELETE /api/skills/{id}` |
 | Employee skills | `GET`, `POST /api/employees/{employeeId}/skills`; `PUT`, `DELETE /api/employees/{employeeId}/skills/{skillId}` |
 
 List endpoints (`GET` on departments, employees, projects, skills) are paged with

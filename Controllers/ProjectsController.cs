@@ -67,4 +67,16 @@ public class ProjectsController : ControllerBase
         await _projectService.RemoveEmployeeAsync(projectId, employeeId, cancellationToken);
         return NoContent();
     }
+
+    // DELETE: api/projects/1
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    {
+        var deleted = await _projectService.DeleteAsync(id, cancellationToken);
+
+        if(!deleted)
+            return NotFound();
+
+        return NoContent();
+    }
 }

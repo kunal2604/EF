@@ -59,4 +59,18 @@ public class SkillService : ISkillService
             Name = skill.Name
         };
     }
+
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
+    {
+        var skill = await _skillRepository.GetByIdAsync(id, cancellationToken);
+
+        if (skill is null)
+            return false;
+
+        // If employees still have this skill, the foreign key rejects the delete;
+        // GlobalExceptionHandler turns that into a 409.
+        await _skillRepository.DeleteAsync(skill, cancellationToken);
+
+        return true;
+    }
 }

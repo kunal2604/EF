@@ -86,6 +86,10 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             "This employee can't be deleted while skills are assigned to them. Remove their skills first.",
         "FK_EmployeeProjects_Employees_EmployeeId" =>
             "This employee can't be deleted while they are assigned to projects. Remove them from the projects first.",
+        "FK_EmployeeSkills_Skills_SkillId" when HttpMethods.IsDelete(httpMethod) =>
+            "This skill can't be deleted while employees have it assigned. Remove it from those employees first.",
+        "FK_EmployeeProjects_Projects_ProjectId" when HttpMethods.IsDelete(httpMethod) =>
+            "This project can't be deleted while employees are assigned to it. Remove them from the project first.",
         _ when HttpMethods.IsDelete(httpMethod) =>
             "This record can't be deleted because other records still reference it.",
         _ => "A record referenced by this request doesn't exist or was removed."
