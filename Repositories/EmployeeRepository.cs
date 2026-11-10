@@ -14,12 +14,23 @@ public class EmployeeRepository : IEmployeeRepository
         _context = context;
     }
 
-    public async Task<List<Employee>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<(List<Employee> Items, int TotalCount)> GetPagedAsync(
+        int page, int pageSize, CancellationToken cancellationToken)
     {
-        return await _context.Employees
+        var query = _context.Employees
             .Include(e => e.Department)
-            .AsNoTracking()
+            .AsNoTracking();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Stable order, otherwise pages can overlap or skip rows.
+        var items = await query
+            .OrderBy(e => e.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 
     public async Task<Employee?> GetByIdAsync(int id, CancellationToken cancellationToken)

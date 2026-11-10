@@ -14,11 +14,22 @@ public class DepartmentRepository : IDepartmentRepository
         _context = context;
     }
 
-    public async Task<List<Department>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<(List<Department> Items, int TotalCount)> GetPagedAsync(
+        int page, int pageSize, CancellationToken cancellationToken)
     {
-        return await _context.Departments
-            .AsNoTracking()
+        var query = _context.Departments
+            .AsNoTracking();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Stable order, otherwise pages can overlap or skip rows.
+        var items = await query
+            .OrderBy(d => d.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 
     public async Task<Department?> GetByIdAsync(int id, CancellationToken cancellationToken)

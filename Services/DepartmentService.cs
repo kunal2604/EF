@@ -1,3 +1,4 @@
+using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.DTOs.Departments;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
@@ -14,15 +15,19 @@ public class DepartmentService : IDepartmentService
         _departmentRepository = departmentRepository;
     }
 
-    public async Task<List<DepartmentResponseDto>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<PagedResult<DepartmentResponseDto>> GetPagedAsync(
+        PagedQuery query, CancellationToken cancellationToken)
     {
-        var departments = await _departmentRepository.GetAllAsync(cancellationToken);
+        var (departments, totalCount) = await _departmentRepository.GetPagedAsync(
+            query.Page, query.PageSize, cancellationToken);
 
-        return departments.Select(d => new DepartmentResponseDto
+        var items = departments.Select(d => new DepartmentResponseDto
         {
             Id = d.Id,
             Name = d.Name
         }).ToList();
+
+        return PagedResult<DepartmentResponseDto>.Create(items, totalCount, query);
     }
 
     public async Task<DepartmentResponseDto> CreateAsync(CreateDepartmentDto dto, CancellationToken cancellationToken)

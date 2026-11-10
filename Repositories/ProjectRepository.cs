@@ -14,12 +14,23 @@ public class ProjectRepository : IProjectRepository
         _context = context;
     }
 
-    public async Task<List<Project>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<(List<Project> Items, int TotalCount)> GetPagedAsync(
+        int page, int pageSize, CancellationToken cancellationToken)
     {
-        return await _context.Projects
+        var query = _context.Projects
             .Include(p => p.Employees)
-            .AsNoTracking()
+            .AsNoTracking();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Stable order, otherwise pages can overlap or skip rows.
+        var items = await query
+            .OrderBy(p => p.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
     }
 
     public async Task<Project?> GetByIdAsync(int id, CancellationToken cancellationToken)

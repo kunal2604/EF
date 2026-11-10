@@ -1,3 +1,4 @@
+using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.DTOs.Employees;
 using EmployeeManagement.Exceptions;
 using EmployeeManagement.Models;
@@ -20,11 +21,13 @@ public class EmployeeService  : IEmployeeService
         _departmentRepository = departmentRepository;
     }
 
-    public async Task<List<EmployeeResponseDto>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<PagedResult<EmployeeResponseDto>> GetPagedAsync(
+        PagedQuery query, CancellationToken cancellationToken)
     {
-        var employees = await _employeeRepository.GetAllAsync(cancellationToken);
+        var (employees, totalCount) = await _employeeRepository.GetPagedAsync(
+            query.Page, query.PageSize, cancellationToken);
 
-        return employees.Select(e => new EmployeeResponseDto
+        var items = employees.Select(e => new EmployeeResponseDto
         {
             Id = e.Id,
             Name = e.Name,
@@ -33,6 +36,8 @@ public class EmployeeService  : IEmployeeService
             JoiningDate = e.JoiningDate,
             DepartmentName = e.Department.Name
         }).ToList();
+
+        return PagedResult<EmployeeResponseDto>.Create(items, totalCount, query);
     }
 
     public async Task<EmployeeResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)

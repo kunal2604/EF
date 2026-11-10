@@ -83,6 +83,13 @@ In Development only:
 | Skills | `GET`, `POST /api/skills`; `GET /api/skills/{id}` |
 | Employee skills | `GET`, `POST /api/employees/{employeeId}/skills`; `PUT /api/employees/{employeeId}/skills/{skillId}` |
 
+List endpoints (`GET` on departments, employees, projects, skills) are paged with
+`?page=1&pageSize=20` (defaults 1 and 20, max page size 100, ordered by id) and return:
+
+```json
+{ "items": [ ... ], "page": 1, "pageSize": 20, "totalCount": 42, "totalPages": 3 }
+```
+
 Errors use RFC 7807 problem responses: `400` validation / bad reference,
 `404` not found, `409` conflict (duplicate email, skill or assignment).
 
