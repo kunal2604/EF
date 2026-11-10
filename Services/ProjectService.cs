@@ -1,3 +1,4 @@
+using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.Exceptions;
 using EmployeeManagement.DTOs.Projects;
 using EmployeeManagement.Models;
@@ -19,17 +20,21 @@ public class ProjectService : IProjectService
         _employeeRepository = employeeRepository;
     }
 
-    public async Task<List<ProjectResponseDto>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<PagedResult<ProjectResponseDto>> GetPagedAsync(
+        PagedQuery query, CancellationToken cancellationToken)
     {
-        var projects = await _projectRepository.GetAllAsync(cancellationToken);
+        var (projects, totalCount) = await _projectRepository.GetPagedAsync(
+            query.Page, query.PageSize, cancellationToken);
 
-        return projects.Select(p => new ProjectResponseDto
+        var items = projects.Select(p => new ProjectResponseDto
         {
             Id = p.Id,
             Name = p.Name,
             Description = p.Description,
             EmployeeNames = p.Employees.Select(e => e.Name).ToList()
         }).ToList();
+
+        return PagedResult<ProjectResponseDto>.Create(items, totalCount, query);
     }
 
     public async Task<ProjectResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)

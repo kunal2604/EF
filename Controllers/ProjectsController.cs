@@ -1,3 +1,4 @@
+using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.DTOs.Projects;
 using EmployeeManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +18,11 @@ public class ProjectsController : ControllerBase
 
     // GET: api/projects
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] PagedQuery query,
+        CancellationToken cancellationToken)
     {
-        var projects = await _projectService.GetAllAsync(cancellationToken);
+        var projects = await _projectService.GetPagedAsync(query, cancellationToken);
         
         return Ok(projects);
     }

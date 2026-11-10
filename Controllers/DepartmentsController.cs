@@ -1,3 +1,4 @@
+using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.DTOs.Departments;
 using EmployeeManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -18,9 +19,11 @@ public class DepartmentsController : ControllerBase
 
     // GET: api/departments
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] PagedQuery query,
+        CancellationToken cancellationToken)
     {
-        var departments = await _departmentService.GetAllAsync(cancellationToken);
+        var departments = await _departmentService.GetPagedAsync(query, cancellationToken);
 
         return Ok(departments);
     }

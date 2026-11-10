@@ -1,3 +1,4 @@
+using EmployeeManagement.DTOs.Common;
 
 
 using EmployeeManagement.DTOs.EmployeeSkills;
@@ -29,9 +30,11 @@ public class SkillsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] PagedQuery query,
+        CancellationToken cancellationToken)
     {
-        var skills = await _skillService.GetAllAsync(cancellationToken);
+        var skills = await _skillService.GetPagedAsync(query, cancellationToken);
 
         return Ok(skills);
     }

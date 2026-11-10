@@ -1,3 +1,4 @@
+using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.Exceptions;
 using EmployeeManagement.DTOs.EmployeeSkills;
 using EmployeeManagement.Models;
@@ -17,13 +18,8 @@ public class SkillService : ISkillService
 
     public async Task<int> CreateAsync(CreateSkillDto dto, CancellationToken cancellationToken)
     {
-        var existingSkills = await _skillRepository.GetAllAsync(cancellationToken);
-
-        if (existingSkills.Any(s =>
-            s.Name.Equals(dto.Name.Trim(), StringComparison.OrdinalIgnoreCase)))
-        {
+        if (await _skillRepository.ExistsByNameAsync(dto.Name.Trim(), cancellationToken))
             throw new ConflictException("Skill already exists.");
-        }
 
         var skill = new Skill
         {
@@ -35,15 +31,19 @@ public class SkillService : ISkillService
         return skill.Id;
     }
 
-    public async Task<List<SkillResponseDto>> GetAllAsync(CancellationToken cancellationToken)
+    public async Task<PagedResult<SkillResponseDto>> GetPagedAsync(
+        PagedQuery query, CancellationToken cancellationToken)
     {
-        var skills = await _skillRepository.GetAllAsync(cancellationToken);
+        var (skills, totalCount) = await _skillRepository.GetPagedAsync(
+            query.Page, query.PageSize, cancellationToken);
 
-        return skills.Select(s => new SkillResponseDto
+        var items = skills.Select(s => new SkillResponseDto
         {
             Id = s.Id,
             Name = s.Name
         }).ToList();
+
+        return PagedResult<SkillResponseDto>.Create(items, totalCount, query);
     }
 
     public async Task<SkillResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
