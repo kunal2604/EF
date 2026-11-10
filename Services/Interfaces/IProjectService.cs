@@ -8,6 +8,7 @@ public interface IProjectService
     Task<PagedResult<ProjectResponseDto>> GetPagedAsync(PagedQuery query, CancellationToken cancellationToken);
     Task<ProjectResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task<ProjectResponseDto> CreateAsync(CreateProjectDto dto, CancellationToken cancellationToken);
+    Task<bool> DeleteAsync(int id, CancellationToken cancellationToken);
     Task AssignEmployeeAsync(int projectId, int employeeId, CancellationToken cancellationToken);
     Task RemoveEmployeeAsync(int projectId, int employeeId, CancellationToken cancellationToken);
 }

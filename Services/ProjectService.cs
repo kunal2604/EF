@@ -112,4 +112,22 @@ public class ProjectService : IProjectService
 
         await _employeeRepository.UpdateAsync(employee, cancellationToken);
     }
+
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
+    {
+        var project = await _projectRepository.GetByIdAsync(id, cancellationToken);
+
+        if(project is null)
+            return false;
+
+        // GetByIdAsync already loaded Employees; EF would otherwise throw while
+        // tracking the join rows, before the database ever sees the delete.
+        if(project.Employees.Count > 0)
+            throw new ConflictException(
+                "This project can't be deleted while employees are assigned to it. Remove them from the project first.");
+
+        await _projectRepository.DeleteAsync(project, cancellationToken);
+
+        return true;
+    }
 }

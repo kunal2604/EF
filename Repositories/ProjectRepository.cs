@@ -45,5 +45,11 @@ public class ProjectRepository : IProjectRepository
         await _context.Projects.AddAsync(project, cancellationToken);
         
         await _context.SaveChangesAsync(cancellationToken);
-    } 
+    }
+
+    public async Task DeleteAsync(Project project, CancellationToken cancellationToken)
+    {
+        _context.Projects.Remove(project);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

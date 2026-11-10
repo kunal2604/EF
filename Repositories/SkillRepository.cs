@@ -51,4 +51,10 @@ public class SkillRepository: ISkillRepository
         await _context.Skills.AddAsync(skill, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task DeleteAsync(Skill skill, CancellationToken cancellationToken)
+    {
+        _context.Skills.Remove(skill);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

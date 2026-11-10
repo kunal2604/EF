@@ -9,4 +9,6 @@ public interface ISkillService
     Task<PagedResult<SkillResponseDto>> GetPagedAsync(PagedQuery query, CancellationToken cancellationToken);
 
     Task<SkillResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken);
+
+    Task<bool> DeleteAsync(int id, CancellationToken cancellationToken);
 }

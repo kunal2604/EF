@@ -9,4 +9,5 @@ public interface ISkillRepository
     Task<Skill?> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken);
     Task AddAsync(Skill skill, CancellationToken cancellationToken);
+    Task DeleteAsync(Skill skill, CancellationToken cancellationToken);
 }

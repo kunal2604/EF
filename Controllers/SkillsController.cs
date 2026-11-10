@@ -49,4 +49,15 @@ public class SkillsController : ControllerBase
 
         return Ok(skill);
     }
+
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    {
+        var deleted = await _skillService.DeleteAsync(id, cancellationToken);
+
+        if (!deleted)
+            return NotFound();
+
+        return NoContent();
+    }
 }
