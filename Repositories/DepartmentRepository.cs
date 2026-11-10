@@ -44,4 +44,15 @@ public class DepartmentRepository : IDepartmentRepository
 
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task UpdateAsync(Department department, CancellationToken cancellationToken)
+    {
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteAsync(Department department, CancellationToken cancellationToken)
+    {
+        _context.Departments.Remove(department);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -45,4 +45,32 @@ public class DepartmentService : IDepartmentService
             Name = department.Name
         };        
     }
+
+    public async Task<bool> UpdateAsync(int id, UpdateDepartmentDto dto, CancellationToken cancellationToken)
+    {
+        var department = await _departmentRepository.GetByIdAsync(id, cancellationToken);
+
+        if (department is null)
+            return false;
+
+        department.Name = dto.Name;
+
+        await _departmentRepository.UpdateAsync(department, cancellationToken);
+
+        return true;
+    }
+
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
+    {
+        var department = await _departmentRepository.GetByIdAsync(id, cancellationToken);
+
+        if (department is null)
+            return false;
+
+        // If employees still belong to this department, the foreign key rejects the
+        // delete; GlobalExceptionHandler turns that into a 409.
+        await _departmentRepository.DeleteAsync(department, cancellationToken);
+
+        return true;
+    }
 }

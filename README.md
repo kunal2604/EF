@@ -77,7 +77,7 @@ In Development only:
 
 | Resource | Routes |
 |---|---|
-| Departments | `GET`, `POST /api/departments` |
+| Departments | `GET`, `POST /api/departments`; `PUT`, `DELETE /api/departments/{id}` |
 | Employees | `GET`, `POST /api/employees`; `GET`, `PUT`, `DELETE /api/employees/{id}` |
 | Projects | `GET`, `POST /api/projects`; `GET`, `DELETE /api/projects/{id}`; `POST /api/projects/{projectId}/employees`; `DELETE /api/projects/{projectId}/employees/{employeeId}` |
 | Skills | `GET`, `POST /api/skills`; `GET`, `DELETE /api/skills/{id}` |

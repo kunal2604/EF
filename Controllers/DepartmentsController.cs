@@ -36,4 +36,28 @@ public class DepartmentsController : ControllerBase
 
         return Ok(department);
     }
+
+    // PUT: api/departments/1
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, UpdateDepartmentDto dto, CancellationToken cancellationToken)
+    {
+        var updated = await _departmentService.UpdateAsync(id, dto, cancellationToken);
+
+        if (!updated)
+            return NotFound();
+
+        return NoContent();
+    }
+
+    // DELETE: api/departments/1
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    {
+        var deleted = await _departmentService.DeleteAsync(id, cancellationToken);
+
+        if (!deleted)
+            return NotFound();
+
+        return NoContent();
+    }
 }
