@@ -28,6 +28,18 @@ public class DepartmentsController : ControllerBase
         return Ok(departments);
     }
 
+    // GET: api/departments/1
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    {
+        var department = await _departmentService.GetByIdAsync(id, cancellationToken);
+
+        if (department is null)
+            return NotFound();
+
+        return Ok(department);
+    }
+
     // POST: api/departments
     [HttpPost]
     public async Task<IActionResult> Create(CreateDepartmentDto dto, CancellationToken cancellationToken)
