@@ -30,6 +30,20 @@ public class DepartmentService : IDepartmentService
         return PagedResult<DepartmentResponseDto>.Create(items, totalCount, query);
     }
 
+    public async Task<DepartmentResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        var department = await _departmentRepository.GetByIdAsync(id, cancellationToken);
+
+        if (department is null)
+            return null;
+
+        return new DepartmentResponseDto
+        {
+            Id = department.Id,
+            Name = department.Name
+        };
+    }
+
     public async Task<DepartmentResponseDto> CreateAsync(CreateDepartmentDto dto, CancellationToken cancellationToken)
     {
         var department = new Department
