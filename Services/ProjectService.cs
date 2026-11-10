@@ -1,3 +1,4 @@
+using EmployeeManagement.Mappings;
 using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.Exceptions;
 using EmployeeManagement.DTOs.Projects;
@@ -26,13 +27,7 @@ public class ProjectService : IProjectService
         var (projects, totalCount) = await _projectRepository.GetPagedAsync(
             query.Page, query.PageSize, cancellationToken);
 
-        var items = projects.Select(p => new ProjectResponseDto
-        {
-            Id = p.Id,
-            Name = p.Name,
-            Description = p.Description,
-            EmployeeNames = p.Employees.Select(e => e.Name).ToList()
-        }).ToList();
+        var items = projects.Select(p => p.ToResponseDto()).ToList();
 
         return PagedResult<ProjectResponseDto>.Create(items, totalCount, query);
     }
@@ -44,13 +39,7 @@ public class ProjectService : IProjectService
         if(project is null)
             return null;
 
-        return new ProjectResponseDto
-        {
-            Id = project.Id,
-            Name = project.Name,
-            Description = project.Description,
-            EmployeeNames = project.Employees.Select(e => e.Name).ToList()  
-        };
+        return project.ToResponseDto();
     }
 
     public async Task<ProjectResponseDto> CreateAsync(CreateProjectDto dto, CancellationToken cancellationToken)
@@ -63,12 +52,7 @@ public class ProjectService : IProjectService
 
         await _projectRepository.AddAsync(project, cancellationToken);
 
-        return new ProjectResponseDto
-        {
-            Id = project.Id,
-            Name = project.Name,
-            Description = project.Description 
-        };
+        return project.ToResponseDto();
     }
 
     public async Task AssignEmployeeAsync(int projectId, int employeeId, CancellationToken cancellationToken)

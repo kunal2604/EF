@@ -1,3 +1,4 @@
+using EmployeeManagement.Mappings;
 using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.Exceptions;
 using EmployeeManagement.DTOs.EmployeeSkills;
@@ -37,11 +38,7 @@ public class SkillService : ISkillService
         var (skills, totalCount) = await _skillRepository.GetPagedAsync(
             query.Page, query.PageSize, cancellationToken);
 
-        var items = skills.Select(s => new SkillResponseDto
-        {
-            Id = s.Id,
-            Name = s.Name
-        }).ToList();
+        var items = skills.Select(s => s.ToResponseDto()).ToList();
 
         return PagedResult<SkillResponseDto>.Create(items, totalCount, query);
     }
@@ -53,11 +50,7 @@ public class SkillService : ISkillService
         if (skill is null)
             return null;
 
-        return new SkillResponseDto
-        {
-            Id = skill.Id,
-            Name = skill.Name
-        };
+        return skill.ToResponseDto();
     }
 
     public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
