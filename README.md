@@ -107,17 +107,35 @@ More detail is in `DeveloperGuide.txt`.  It also documents the initial errors en
 ## Tests
 
 ```bash
-dotnet test EF.Tests
+dotnet test EF.Tests                              # everything (needs Docker)
+dotnet test EF.Tests --filter "Category!=Database" # no Docker needed
+dotnet test EF.Tests --filter "Category=Database"  # database tests only
 ```
 
-`EF.Tests` (xUnit + NSubstitute) needs no database:
+`EF.Tests` (xUnit + NSubstitute + Testcontainers) has two kinds of tests.
 
+**Without a database** (125 tests):
 - **Services** are unit-tested with mocked repositories: business rules, conflicts, not-found cases, delete guards, paging.
 - **Exception handler** is tested with real Npgsql error objects (unique, restrict and foreign-key violations, client disconnects).
 - **HTTP layer** is tested through the real ASP.NET pipeline (`WebApplicationFactory`) with the services mocked: routes, validation, status codes and the error JSON shape.
 
-Not covered: the SQL itself, constraints and migrations. Those need a real
-PostgreSQL instance (for example a Testcontainers-based test, which requires Docker).
+**With a real PostgreSQL** (47 tests, category `Database`). A throwaway PostgreSQL
+container is started with Testcontainers, your real migrations are applied to it, and
+it is removed afterwards. Your development database is never touched.
+- **Schema:** every migration applies to an empty database, the migrations match the current model, `citext` is installed.
+- **Constraints:** case-insensitive unique email, unique skill names, the check on years of experience, column lengths, salary precision, the default joining date, and that referenced rows cannot be deleted.
+- **Repositories:** real paging, ordering, includes and case-insensitive lookups.
+- **End to end:** HTTP requests through the whole unmocked app into the database, including the blocked deletes and the simultaneous-duplicate-email race.
+
+Requirements for the database tests: Docker, and your user in the `docker` group
+(`sudo usermod -aG docker $USER`, then log out and back in). The first run pulls the image.
+
+PostgreSQL versions report some errors differently (a blocked delete is error 23001 on
+PostgreSQL 18 but 23503 on 17), so check against more than one version:
+
+```bash
+TEST_POSTGRES_IMAGE=postgres:18 dotnet test EF.Tests   # default image is postgres:17
+```
 
 The test project lives in a subfolder and is excluded from `EF.csproj`, so
 `dotnet build`, `dotnet run` and `dotnet ef` at the repo root are unaffected.
