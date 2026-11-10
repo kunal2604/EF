@@ -1,3 +1,4 @@
+using EmployeeManagement.Mappings;
 using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.DTOs.Employees;
 using EmployeeManagement.Exceptions;
@@ -27,15 +28,7 @@ public class EmployeeService  : IEmployeeService
         var (employees, totalCount) = await _employeeRepository.GetPagedAsync(
             query.Page, query.PageSize, cancellationToken);
 
-        var items = employees.Select(e => new EmployeeResponseDto
-        {
-            Id = e.Id,
-            Name = e.Name,
-            Email = e.Email,
-            Salary = e.Salary,
-            JoiningDate = e.JoiningDate,
-            DepartmentName = e.Department.Name
-        }).ToList();
+        var items = employees.Select(e => e.ToResponseDto()).ToList();
 
         return PagedResult<EmployeeResponseDto>.Create(items, totalCount, query);
     }
@@ -47,15 +40,7 @@ public class EmployeeService  : IEmployeeService
         if(employee is null)
             return null;
         
-        return new EmployeeResponseDto
-        {
-            Id = employee.Id,
-            Name = employee.Name,
-            Email = employee.Email,
-            Salary = employee.Salary,
-            JoiningDate = employee.JoiningDate,
-            DepartmentName = employee.Department.Name
-        };
+        return employee.ToResponseDto();
     }
 
     public async Task<EmployeeResponseDto> CreateAsync(CreateEmployeeDto dto, CancellationToken cancellationToken)
@@ -78,20 +63,13 @@ public class EmployeeService  : IEmployeeService
             Email = dto.Email,
             Salary = dto.Salary,
             JoiningDate = dto.JoiningDate ?? DateOnly.FromDateTime(DateTime.UtcNow),
-            DepartmentId = dto.DepartmentId
+            DepartmentId = dto.DepartmentId,
+            Department = department
         };
 
         await _employeeRepository.AddAsync(employee, cancellationToken);
 
-        return new EmployeeResponseDto
-        {
-            Id = employee.Id,
-            Name = employee.Name,
-            Email = employee.Email,
-            Salary = employee.Salary,
-            JoiningDate = employee.JoiningDate,
-            DepartmentName = department.Name
-        };
+        return employee.ToResponseDto();
     }
 
     public async Task<bool> UpdateAsync(int id, UpdateEmployeeDto dto, CancellationToken cancellationToken)

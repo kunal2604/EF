@@ -1,3 +1,4 @@
+using EmployeeManagement.Mappings;
 using EmployeeManagement.Exceptions;
 using EmployeeManagement.DTOs.EmployeeSkills;
 using EmployeeManagement.Models;
@@ -64,14 +65,7 @@ public class EmployeeSkillService : IEmployeeSkillService
         var employeeSkills =
             await _employeeSkillRepository.GetByEmployeeIdAsync(employeeId, cancellationToken);
 
-        return employeeSkills.Select(es => new EmployeeSkillResponseDto
-        {
-            EmployeeId = es.EmployeeId,
-            SkillId = es.SkillId,
-            SkillName = es.Skill.Name,
-            ProficiencyLevel = es.ProficiencyLevel,
-            YearsOfExperience = es.YearsOfExperience
-        }).ToList();
+        return employeeSkills.Select(es => es.ToResponseDto()).ToList();
     }
 
     public async Task UpdateSkillAsync(
