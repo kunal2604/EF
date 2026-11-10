@@ -103,3 +103,21 @@ dotnet ef migrations remove          # undo the latest (only if not applied)
 ```
 
 More detail is in `DeveloperGuide.txt`.  It also documents the initial errors encountered during development, along with their respective resolutions and workarounds.
+
+## Tests
+
+```bash
+dotnet test EF.Tests
+```
+
+`EF.Tests` (xUnit + NSubstitute) needs no database:
+
+- **Services** are unit-tested with mocked repositories: business rules, conflicts, not-found cases, delete guards, paging.
+- **Exception handler** is tested with real Npgsql error objects (unique, restrict and foreign-key violations, client disconnects).
+- **HTTP layer** is tested through the real ASP.NET pipeline (`WebApplicationFactory`) with the services mocked: routes, validation, status codes and the error JSON shape.
+
+Not covered: the SQL itself, constraints and migrations. Those need a real
+PostgreSQL instance (for example a Testcontainers-based test, which requires Docker).
+
+The test project lives in a subfolder and is excluded from `EF.csproj`, so
+`dotnet build`, `dotnet run` and `dotnet ef` at the repo root are unaffected.
