@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EmployeeManagement.Controllers;
 
 [ApiController]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/problem+json")]
 [Route("api/employees/{employeeId:int}/skills")]
 public class EmployeeSkillsController : ControllerBase
 {
@@ -16,6 +17,10 @@ public class EmployeeSkillsController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType<string>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async Task<IActionResult> AssignSkill(
         int employeeId,
         AssignSkillDto dto,
@@ -27,6 +32,8 @@ public class EmployeeSkillsController : ControllerBase
     }
 
     [HttpGet]
+    [ProducesResponseType<List<EmployeeSkillResponseDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     public async Task<IActionResult> GetEmployeeSkills(int employeeId, CancellationToken cancellationToken)
     {
         var skills = await _service.GetEmployeeSkillsAsync(employeeId, cancellationToken);
@@ -35,6 +42,9 @@ public class EmployeeSkillsController : ControllerBase
     }
 
     [HttpPut("{skillId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     public async Task<IActionResult> UpdateSkill(
         int employeeId,
         int skillId,
@@ -47,6 +57,8 @@ public class EmployeeSkillsController : ControllerBase
     }
 
     [HttpDelete("{skillId:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     public async Task<IActionResult> RemoveSkill(
         int employeeId,
         int skillId,

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EmployeeManagement.Controllers;
 
 [ApiController]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/problem+json")]
 [Route("api/[controller]")]
 public class SkillsController : ControllerBase
 {
@@ -19,6 +20,9 @@ public class SkillsController : ControllerBase
     }
 
     [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async Task<IActionResult> Create(CreateSkillDto dto, CancellationToken cancellationToken)
     {
         var id = await _skillService.CreateAsync(dto, cancellationToken);
@@ -30,6 +34,8 @@ public class SkillsController : ControllerBase
     }
 
     [HttpGet]
+    [ProducesResponseType<PagedResult<SkillResponseDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
     public async Task<IActionResult> GetAll(
         [FromQuery] PagedQuery query,
         CancellationToken cancellationToken)
@@ -40,6 +46,8 @@ public class SkillsController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [ProducesResponseType<SkillResponseDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
         var skill = await _skillService.GetByIdAsync(id, cancellationToken);
@@ -51,6 +59,9 @@ public class SkillsController : ControllerBase
     }
 
     [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _skillService.DeleteAsync(id, cancellationToken);

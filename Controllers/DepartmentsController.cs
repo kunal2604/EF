@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EmployeeManagement.Controllers;
 
 [ApiController]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/problem+json")]
 [Route("api/[controller]")]
 public class DepartmentsController : ControllerBase
 {
@@ -19,6 +20,8 @@ public class DepartmentsController : ControllerBase
 
     // GET: api/departments
     [HttpGet]
+    [ProducesResponseType<PagedResult<DepartmentResponseDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
     public async Task<IActionResult> GetAll(
         [FromQuery] PagedQuery query,
         CancellationToken cancellationToken)
@@ -30,6 +33,8 @@ public class DepartmentsController : ControllerBase
 
     // GET: api/departments/1
     [HttpGet("{id:int}")]
+    [ProducesResponseType<DepartmentResponseDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
         var department = await _departmentService.GetByIdAsync(id, cancellationToken);
@@ -42,6 +47,8 @@ public class DepartmentsController : ControllerBase
 
     // POST: api/departments
     [HttpPost]
+    [ProducesResponseType<DepartmentResponseDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
     public async Task<IActionResult> Create(CreateDepartmentDto dto, CancellationToken cancellationToken)
     {
         var department = await _departmentService.CreateAsync(dto, cancellationToken);
@@ -51,6 +58,9 @@ public class DepartmentsController : ControllerBase
 
     // PUT: api/departments/1
     [HttpPut("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     public async Task<IActionResult> Update(int id, UpdateDepartmentDto dto, CancellationToken cancellationToken)
     {
         var updated = await _departmentService.UpdateAsync(id, dto, cancellationToken);
@@ -63,6 +73,9 @@ public class DepartmentsController : ControllerBase
 
     // DELETE: api/departments/1
     [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
     {
         var deleted = await _departmentService.DeleteAsync(id, cancellationToken);
