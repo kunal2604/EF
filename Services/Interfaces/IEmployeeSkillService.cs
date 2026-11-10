@@ -15,4 +15,9 @@ public interface IEmployeeSkillService
         int skillId,
         UpdateEmployeeSkillDto dto,
         CancellationToken cancellationToken);
+
+    Task RemoveSkillAsync(
+        int employeeId,
+        int skillId,
+        CancellationToken cancellationToken);
 }

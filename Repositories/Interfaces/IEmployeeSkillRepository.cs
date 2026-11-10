@@ -8,5 +8,6 @@ public interface IEmployeeSkillRepository
     Task<EmployeeSkill?> GetAsync(int employeeId, int skillId, CancellationToken cancellationToken);
     Task AddAsync(EmployeeSkill employeeSkill, CancellationToken cancellationToken);
     Task UpdateAsync(EmployeeSkill employeeSkill, CancellationToken cancellationToken);
+    Task DeleteAsync(EmployeeSkill employeeSkill, CancellationToken cancellationToken);
 
 }

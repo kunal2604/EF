@@ -45,4 +45,15 @@ public class EmployeeSkillsController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpDelete("{skillId:int}")]
+    public async Task<IActionResult> RemoveSkill(
+        int employeeId,
+        int skillId,
+        CancellationToken cancellationToken)
+    {
+        await _service.RemoveSkillAsync(employeeId, skillId, cancellationToken);
+
+        return NoContent();
+    }
 }

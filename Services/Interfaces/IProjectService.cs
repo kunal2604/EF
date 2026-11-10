@@ -9,4 +9,5 @@ public interface IProjectService
     Task<ProjectResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken);
     Task<ProjectResponseDto> CreateAsync(CreateProjectDto dto, CancellationToken cancellationToken);
     Task AssignEmployeeAsync(int projectId, int employeeId, CancellationToken cancellationToken);
+    Task RemoveEmployeeAsync(int projectId, int employeeId, CancellationToken cancellationToken);
 }
