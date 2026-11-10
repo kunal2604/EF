@@ -40,4 +40,10 @@ public class EmployeeSkillRepository : IEmployeeSkillRepository
     {
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task DeleteAsync(EmployeeSkill employeeSkill, CancellationToken cancellationToken)
+    {
+        _context.EmployeeSkills.Remove(employeeSkill);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }

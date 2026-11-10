@@ -92,4 +92,19 @@ public class EmployeeSkillService : IEmployeeSkillService
 
         await _employeeSkillRepository.UpdateAsync(employeeSkill, cancellationToken);
     }
+
+    public async Task RemoveSkillAsync(
+        int employeeId,
+        int skillId,
+        CancellationToken cancellationToken)
+    {
+        var employeeSkill = await _employeeSkillRepository.GetAsync(
+            employeeId, skillId, cancellationToken);
+
+        if (employeeSkill is null)
+            throw new NotFoundException(
+                "Employee skill assignment not found.");
+
+        await _employeeSkillRepository.DeleteAsync(employeeSkill, cancellationToken);
+    }
 }

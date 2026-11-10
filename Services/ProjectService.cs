@@ -90,4 +90,26 @@ public class ProjectService : IProjectService
 
         await _employeeRepository.UpdateAsync(employee, cancellationToken);
     }
+
+    public async Task RemoveEmployeeAsync(int projectId, int employeeId, CancellationToken cancellationToken)
+    {
+        var project = await _projectRepository.GetByIdAsync(projectId, cancellationToken);
+
+        if(project is null)
+            throw new NotFoundException("Project not found !");
+
+        var employee = await _employeeRepository.GetByIdAsync(employeeId, cancellationToken);
+
+        if(employee is null)
+            throw new NotFoundException("Employee not found !");
+
+        var assignedProject = employee.Projects.FirstOrDefault(p => p.Id == projectId);
+
+        if(assignedProject is null)
+            throw new NotFoundException("Employee is not assigned to this project !");
+
+        employee.Projects.Remove(assignedProject);
+
+        await _employeeRepository.UpdateAsync(employee, cancellationToken);
+    }
 }
