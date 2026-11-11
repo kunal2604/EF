@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+EF.Tests/
+TestResults/
+.git/
+.github/
+.vs/
+.vscode/
+*.md
+Dockerfile
+docker-compose*.yml
+.dockerignore
+DeveloperGuide.txt

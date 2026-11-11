@@ -1,0 +1,41 @@
+# Runs the API and its PostgreSQL database together:   docker compose up --build
+# API + Swagger: http://localhost:8085/swagger        Database from your machine: localhost:5433
+# Ports taken already? Set API_PORT (and/or edit 5433) - e.g.  API_PORT=9000 docker compose up
+#
+# These are local development settings. Do not reuse the passwords anywhere real.
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: employeemanagement
+      POSTGRES_USER: efuser
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-efpassword}
+    ports:
+      # 5433 on the host, so it doesn't clash with a PostgreSQL already running on 5432.
+      - "5433:5432"
+    volumes:
+      # PostgreSQL 18+ images keep their data under /var/lib/postgresql.
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U efuser -d employeemanagement"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy   # wait until the database accepts connections
+    environment:
+      # "db" is the database service's name on the compose network.
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=employeemanagement;Username=efuser;Password=${POSTGRES_PASSWORD:-efpassword}
+      # Create the tables on first start (and apply new migrations on later starts).
+      Database__MigrateOnStartup: "true"
+      # Development turns on /swagger. Remove this line to run the API like production.
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "${API_PORT:-8085}:8080"   # the container itself always listens on 8080
+
+volumes:
+  pgdata:

@@ -64,6 +64,34 @@ dotnet run
 The app listens on `http://localhost:5085` (from `launchSettings.json`). If you
 start it with `--urls`, that port wins instead.
 
+### Or: run everything with Docker
+
+No PostgreSQL or .NET install needed, only Docker:
+
+```bash
+docker compose up --build
+```
+
+This starts PostgreSQL 18 and the API, creates the tables on first start, and serves the API at
+`http://localhost:8085` (Swagger at `http://localhost:8085/swagger`). The database is also reachable from
+your machine on `localhost:5433` (user `efuser`, database `employeemanagement`, password `efpassword`).
+
+```bash
+docker compose up -d             # same, in the background
+docker compose logs -f api       # follow the API's output
+docker compose down              # stop; the data is kept in a Docker volume
+docker compose down -v           # stop and delete the data too
+API_PORT=9000 docker compose up  # use another host port if 8085 is taken
+POSTGRES_PASSWORD=secret docker compose up   # use another database password
+```
+
+How it fits together:
+- [`Dockerfile`](Dockerfile) builds the API in two stages (SDK to publish, the smaller ASP.NET runtime to run) and runs it as a non-root user.
+- [`docker-compose.yml`](docker-compose.yml) starts the database first and waits until it accepts connections, then starts the API with the connection string passed as the `ConnectionStrings__DefaultConnection` environment variable.
+- `Database__MigrateOnStartup=true` (set only in the compose file) makes the API apply pending migrations when it starts. It is off by default, so `dotnet run` never changes your database unless you run `dotnet ef database update`.
+- `ASPNETCORE_ENVIRONMENT=Development` is set so that `/swagger` works. Remove that line to run it like production.
+- These are local settings with a throwaway password. Do not reuse them anywhere real.
+
 ## API documentation
 
 In Development only:
@@ -119,7 +147,7 @@ dotnet test EF.Tests --filter "Category=Database"  # database tests only
 - **Exception handler** is tested with real Npgsql error objects (unique, restrict and foreign-key violations, client disconnects).
 - **HTTP layer** is tested through the real ASP.NET pipeline (`WebApplicationFactory`) with the services mocked: routes, validation, status codes and the error JSON shape.
 
-**With a real PostgreSQL** (64 tests, category `Database`). A throwaway PostgreSQL
+**With a real PostgreSQL** (67 tests, category `Database`). A throwaway PostgreSQL
 container is started with Testcontainers, your real migrations are applied to it, and
 it is removed afterwards. Your development database is never touched.
 - **Schema:** every migration applies to an empty database, the migrations match the current model, `citext` is installed.

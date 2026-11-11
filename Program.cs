@@ -45,6 +45,14 @@ builder.Services.AddScoped<ISkillService, SkillService>();
 
 var app = builder.Build();
 
+// Optional: create/upgrade the database schema at startup. Off by default; docker-compose turns it on
+// (Database__MigrateOnStartup=true) because a fresh container starts with an empty database.
+if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
+    using var scope = app.Services.CreateScope();
+    await scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.MigrateAsync();
+}
+
 app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
