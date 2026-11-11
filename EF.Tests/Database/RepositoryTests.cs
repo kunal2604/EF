@@ -148,6 +148,19 @@ public class RepositoryTests(PostgresFixture db) : DatabaseTestBase(db)
         Assert.Empty(second[0].EmployeeNames);
     }
 
+    [Fact]
+    public async Task Employee_existence_check_is_true_only_for_real_ids_and_loads_nothing()
+    {
+        var department = await SeedDepartmentAsync();
+        var employee = await SeedEmployeeAsync(department.Id);
+        await using var ctx = NewContext();
+        var sut = new EmployeeRepository(ctx);
+
+        Assert.True(await sut.ExistsAsync(employee.Id, _ct));
+        Assert.False(await sut.ExistsAsync(employee.Id + 1, _ct));
+        Assert.Empty(ctx.ChangeTracker.Entries());
+    }
+
     // ---- reads are projected straight into DTOs ----
 
     [Fact]

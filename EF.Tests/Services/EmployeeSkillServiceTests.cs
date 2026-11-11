@@ -25,7 +25,7 @@ public class EmployeeSkillServiceTests
     [Fact]
     public async Task Assign_throws_NotFound_when_employee_missing()
     {
-        _employees.GetByIdAsync(1, _ct).Returns((Employee?)null);
+        _employees.ExistsAsync(1, _ct).Returns(false);
 
         var ex = await Assert.ThrowsAsync<NotFoundException>(() => _sut.AssignSkillAsync(1, Assign(), _ct));
         Assert.Contains("Employee", ex.Message);
@@ -34,7 +34,7 @@ public class EmployeeSkillServiceTests
     [Fact]
     public async Task Assign_throws_NotFound_when_skill_missing()
     {
-        _employees.GetByIdAsync(1, _ct).Returns(TestData.Employee());
+        _employees.ExistsAsync(1, _ct).Returns(true);
         _skills.GetByIdAsync(1, _ct).Returns((Skill?)null);
 
         var ex = await Assert.ThrowsAsync<NotFoundException>(() => _sut.AssignSkillAsync(1, Assign(), _ct));
@@ -44,7 +44,7 @@ public class EmployeeSkillServiceTests
     [Fact]
     public async Task Assign_throws_Conflict_when_already_assigned()
     {
-        _employees.GetByIdAsync(1, _ct).Returns(TestData.Employee());
+        _employees.ExistsAsync(1, _ct).Returns(true);
         _skills.GetByIdAsync(1, _ct).Returns(TestData.Skill());
         _assignments.GetAsync(1, 1, _ct).Returns(TestData.EmployeeSkill());
 
@@ -55,7 +55,7 @@ public class EmployeeSkillServiceTests
     [Fact]
     public async Task Assign_saves_the_assignment()
     {
-        _employees.GetByIdAsync(1, _ct).Returns(TestData.Employee());
+        _employees.ExistsAsync(1, _ct).Returns(true);
         _skills.GetByIdAsync(1, _ct).Returns(TestData.Skill());
         _assignments.GetAsync(1, 1, _ct).Returns((EmployeeSkill?)null);
 
@@ -71,7 +71,7 @@ public class EmployeeSkillServiceTests
     [Fact]
     public async Task GetEmployeeSkills_throws_NotFound_when_employee_missing()
     {
-        _employees.GetByIdAsync(1, _ct).Returns((Employee?)null);
+        _employees.ExistsAsync(1, _ct).Returns(false);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _sut.GetEmployeeSkillsAsync(1, _ct));
     }
@@ -79,7 +79,7 @@ public class EmployeeSkillServiceTests
     [Fact]
     public async Task GetEmployeeSkills_maps_the_skill_name()
     {
-        _employees.GetByIdAsync(1, _ct).Returns(TestData.Employee());
+        _employees.ExistsAsync(1, _ct).Returns(true);
         _assignments.GetByEmployeeIdAsync(1, _ct).Returns(new List<EmployeeSkillResponseDto> { TestData.EmployeeSkill().ToResponseDto() });
 
         var result = await _sut.GetEmployeeSkillsAsync(1, _ct);

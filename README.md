@@ -119,7 +119,7 @@ dotnet test EF.Tests --filter "Category=Database"  # database tests only
 - **Exception handler** is tested with real Npgsql error objects (unique, restrict and foreign-key violations, client disconnects).
 - **HTTP layer** is tested through the real ASP.NET pipeline (`WebApplicationFactory`) with the services mocked: routes, validation, status codes and the error JSON shape.
 
-**With a real PostgreSQL** (63 tests, category `Database`). A throwaway PostgreSQL
+**With a real PostgreSQL** (64 tests, category `Database`). A throwaway PostgreSQL
 container is started with Testcontainers, your real migrations are applied to it, and
 it is removed afterwards. Your development database is never touched.
 - **Schema:** every migration applies to an empty database, the migrations match the current model, `citext` is installed.

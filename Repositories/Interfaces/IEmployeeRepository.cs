@@ -11,6 +11,8 @@ public interface IEmployeeRepository
     /// <summary>Read-only single employee as a DTO; null if not found. Use <see cref="GetByIdAsync"/> when you need to change it.</summary>
     Task<EmployeeResponseDto?> GetResponseByIdAsync(int id, CancellationToken cancellationToken);
     Task<Employee?> GetByIdAsync(int id, CancellationToken cancellationToken);
+    /// <summary>Cheap existence check: no employee, department or projects are loaded.</summary>
+    Task<bool> ExistsAsync(int id, CancellationToken cancellationToken);
     Task<Employee?> GetByEmailAsync(string email, CancellationToken cancellationToken);
     Task AddAsync(Employee employee, CancellationToken cancellationToken);
     Task UpdateAsync(Employee employee, CancellationToken cancellationToken);
