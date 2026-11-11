@@ -142,14 +142,14 @@ public class EndToEndTests(PostgresFixture db) : DatabaseTestBase(db)
     }
 
     [Fact]
-    public async Task Eight_simultaneous_creates_with_the_same_department_name_give_one_success_and_no_500s()
+    public async Task Eight_simultaneous_creates_with_the_same_department_name_give_one_201_and_seven_409s_and_no_500s()
     {
         var c = Client;
 
         var responses = await Task.WhenAll(Enumerable.Range(0, 8)
             .Select(_ => c.PostAsJsonAsync("/api/departments", new { name = "Legal" })));
 
-        Assert.Equal(1, responses.Count(r => r.StatusCode == HttpStatusCode.OK));
+        Assert.Equal(1, responses.Count(r => r.StatusCode == HttpStatusCode.Created));
         Assert.Equal(7, responses.Count(r => r.StatusCode == HttpStatusCode.Conflict));
     }
 
