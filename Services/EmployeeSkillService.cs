@@ -1,4 +1,3 @@
-using EmployeeManagement.Mappings;
 using EmployeeManagement.Exceptions;
 using EmployeeManagement.DTOs.EmployeeSkills;
 using EmployeeManagement.Models;
@@ -62,10 +61,7 @@ public class EmployeeSkillService : IEmployeeSkillService
         if (employee is null)
             throw new NotFoundException("Employee not found.");
 
-        var employeeSkills =
-            await _employeeSkillRepository.GetByEmployeeIdAsync(employeeId, cancellationToken);
-
-        return employeeSkills.Select(es => es.ToResponseDto()).ToList();
+        return await _employeeSkillRepository.GetByEmployeeIdAsync(employeeId, cancellationToken);
     }
 
     public async Task UpdateSkillAsync(

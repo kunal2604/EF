@@ -81,7 +81,7 @@ public class RepositoryTests(PostgresFixture db) : DatabaseTestBase(db)
 
         var (items, _) = await new EmployeeRepository(ctx).GetPagedAsync(1, 10, _ct);
 
-        Assert.All(items, e => Assert.Equal("Platform", e.Department.Name));
+        Assert.All(items, e => Assert.Equal("Platform", e.DepartmentName));
     }
 
     [Fact]
@@ -142,10 +142,97 @@ public class RepositoryTests(PostgresFixture db) : DatabaseTestBase(db)
 
         Assert.Equal(3, total);
         Assert.Equal(new[] { "P1", "P2" }, first.Select(p => p.Name));
-        Assert.Equal(2, first[0].Employees.Count);   // members were not lost to the row limit
-        Assert.Single(first[1].Employees);
+        Assert.Equal(2, first[0].EmployeeNames.Count);   // members were not lost to the row limit
+        Assert.Single(first[1].EmployeeNames);
         Assert.Equal(new[] { "P3" }, second.Select(p => p.Name));
-        Assert.Empty(second[0].Employees);
+        Assert.Empty(second[0].EmployeeNames);
+    }
+
+    // ---- reads are projected straight into DTOs ----
+
+    [Fact]
+    public async Task Employee_reads_are_projected_and_nothing_is_tracked()
+    {
+        var department = await SeedDepartmentAsync("Platform");
+        var employee = await SeedEmployeeAsync(department.Id);
+        await using var ctx = NewContext();
+        var sut = new EmployeeRepository(ctx);
+
+        var dto = await sut.GetResponseByIdAsync(employee.Id, _ct);
+        var (page, _) = await sut.GetPagedAsync(1, 10, _ct);
+
+        Assert.NotNull(dto);
+        Assert.Equal(("Asha", "asha@test.com", "Platform"), (dto.Name, dto.Email, dto.DepartmentName));
+        Assert.Equal(employee.Id, Assert.Single(page).Id);
+        Assert.Empty(ctx.ChangeTracker.Entries()); // no entities were materialised
+    }
+
+    [Fact]
+    public async Task Employee_response_by_id_is_null_when_missing()
+    {
+        await SeedDepartmentAsync();
+        await using var ctx = NewContext();
+
+        Assert.Null(await new EmployeeRepository(ctx).GetResponseByIdAsync(999, _ct));
+    }
+
+    [Fact]
+    public async Task Project_reads_are_projected_with_member_names_and_nothing_is_tracked()
+    {
+        var department = await SeedDepartmentAsync();
+        await SeedEmployeesAsync(department.Id, 2);
+        await SeedProjectAsync("Apollo");
+        await using (var link = NewContext())
+        {
+            var project = await link.Projects.Include(p => p.Employees).SingleAsync();
+            foreach (var e in await link.Employees.ToListAsync()) project.Employees.Add(e);
+            await link.SaveChangesAsync();
+        }
+        await using var ctx = NewContext();
+        var sut = new ProjectRepository(ctx);
+
+        var dto = await sut.GetResponseByIdAsync(1, _ct);
+        var (page, _) = await sut.GetPagedAsync(1, 10, _ct);
+
+        Assert.NotNull(dto);
+        Assert.Equal("Apollo", dto.Name);
+        Assert.Equal(new[] { "Emp01", "Emp02" }, dto.EmployeeNames.Order());
+        Assert.Equal(2, Assert.Single(page).EmployeeNames.Count);
+        Assert.Empty(ctx.ChangeTracker.Entries());
+    }
+
+    [Fact]
+    public async Task Project_response_by_id_is_null_when_missing_and_has_no_members_when_unassigned()
+    {
+        await SeedProjectAsync();
+        await using var ctx = NewContext();
+        var sut = new ProjectRepository(ctx);
+
+        Assert.Null(await sut.GetResponseByIdAsync(999, _ct));
+        Assert.Empty((await sut.GetResponseByIdAsync(1, _ct))!.EmployeeNames);
+    }
+
+    [Fact]
+    public async Task Employee_skills_are_projected_with_the_skill_name_and_only_for_that_employee()
+    {
+        var department = await SeedDepartmentAsync();
+        var asha = await SeedEmployeeAsync(department.Id, "asha@test.com");
+        var ben = await SeedEmployeeAsync(department.Id, "ben@test.com", "Ben");
+        var skill = await SeedSkillAsync("SQL");
+        await using (var seed = NewContext())
+        {
+            seed.EmployeeSkills.AddRange(
+                new EmployeeSkill { EmployeeId = asha.Id, SkillId = skill.Id, ProficiencyLevel = "Expert", YearsOfExperience = 9 },
+                new EmployeeSkill { EmployeeId = ben.Id, SkillId = skill.Id, ProficiencyLevel = "Basic", YearsOfExperience = 1 });
+            await seed.SaveChangesAsync();
+        }
+        await using var ctx = NewContext();
+
+        var result = await new EmployeeSkillRepository(ctx).GetByEmployeeIdAsync(asha.Id, _ct);
+
+        var item = Assert.Single(result);
+        Assert.Equal(("SQL", "Expert", 9), (item.SkillName, item.ProficiencyLevel, item.YearsOfExperience));
+        Assert.Empty(ctx.ChangeTracker.Entries());
     }
 
     // ---- skills ----

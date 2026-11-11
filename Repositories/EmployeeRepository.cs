@@ -1,4 +1,6 @@
 using EmployeeManagement.Data;
+using EmployeeManagement.DTOs.Employees;
+using EmployeeManagement.Mappings;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -14,23 +16,29 @@ public class EmployeeRepository : IEmployeeRepository
         _context = context;
     }
 
-    public async Task<(List<Employee> Items, int TotalCount)> GetPagedAsync(
+    public async Task<(List<EmployeeResponseDto> Items, int TotalCount)> GetPagedAsync(
         int page, int pageSize, CancellationToken cancellationToken)
     {
-        var query = _context.Employees
-            .Include(e => e.Department)
-            .AsNoTracking();
+        var totalCount = await _context.Employees.CountAsync(cancellationToken);
 
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        // Stable order, otherwise pages can overlap or skip rows.
-        var items = await query
+        // Stable order, otherwise pages can overlap or skip rows. Select() makes EF load
+        // only the columns the DTO needs (and nothing is tracked).
+        var items = await _context.Employees
             .OrderBy(e => e.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
+            .Select(ResponseMappings.EmployeeProjection)
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);
+    }
+
+    public async Task<EmployeeResponseDto?> GetResponseByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        return await _context.Employees
+            .Where(e => e.Id == id)
+            .Select(ResponseMappings.EmployeeProjection)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Employee?> GetByIdAsync(int id, CancellationToken cancellationToken)

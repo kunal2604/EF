@@ -1,4 +1,6 @@
 using EmployeeManagement.Data;
+using EmployeeManagement.DTOs.Projects;
+using EmployeeManagement.Mappings;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -14,23 +16,29 @@ public class ProjectRepository : IProjectRepository
         _context = context;
     }
 
-    public async Task<(List<Project> Items, int TotalCount)> GetPagedAsync(
+    public async Task<(List<ProjectResponseDto> Items, int TotalCount)> GetPagedAsync(
         int page, int pageSize, CancellationToken cancellationToken)
     {
-        var query = _context.Projects
-            .Include(p => p.Employees)
-            .AsNoTracking();
+        var totalCount = await _context.Projects.CountAsync(cancellationToken);
 
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        // Stable order, otherwise pages can overlap or skip rows.
-        var items = await query
+        // Stable order, otherwise pages can overlap or skip rows. Only the project columns and
+        // the employees' names are loaded, not whole Employee rows.
+        var items = await _context.Projects
             .OrderBy(p => p.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
+            .Select(ResponseMappings.ProjectProjection)
             .ToListAsync(cancellationToken);
 
         return (items, totalCount);
+    }
+
+    public async Task<ProjectResponseDto?> GetResponseByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        return await _context.Projects
+            .Where(p => p.Id == id)
+            .Select(ResponseMappings.ProjectProjection)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Project?> GetByIdAsync(int id, CancellationToken cancellationToken)

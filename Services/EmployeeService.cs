@@ -25,22 +25,15 @@ public class EmployeeService  : IEmployeeService
     public async Task<PagedResult<EmployeeResponseDto>> GetPagedAsync(
         PagedQuery query, CancellationToken cancellationToken)
     {
-        var (employees, totalCount) = await _employeeRepository.GetPagedAsync(
+        var (items, totalCount) = await _employeeRepository.GetPagedAsync(
             query.Page, query.PageSize, cancellationToken);
-
-        var items = employees.Select(e => e.ToResponseDto()).ToList();
 
         return PagedResult<EmployeeResponseDto>.Create(items, totalCount, query);
     }
 
     public async Task<EmployeeResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var employee = await _employeeRepository.GetByIdAsync(id, cancellationToken);
-
-        if(employee is null)
-            return null;
-        
-        return employee.ToResponseDto();
+        return await _employeeRepository.GetResponseByIdAsync(id, cancellationToken);
     }
 
     public async Task<EmployeeResponseDto> CreateAsync(CreateEmployeeDto dto, CancellationToken cancellationToken)

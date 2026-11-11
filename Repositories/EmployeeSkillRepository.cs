@@ -1,4 +1,6 @@
 using EmployeeManagement.Data;
+using EmployeeManagement.DTOs.EmployeeSkills;
+using EmployeeManagement.Mappings;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -14,12 +16,11 @@ public class EmployeeSkillRepository : IEmployeeSkillRepository
         _context = context;
     }
 
-    public async Task<List<EmployeeSkill>> GetByEmployeeIdAsync(int employeeId, CancellationToken cancellationToken)
+    public async Task<List<EmployeeSkillResponseDto>> GetByEmployeeIdAsync(int employeeId, CancellationToken cancellationToken)
     {
         return await _context.EmployeeSkills
-            .AsNoTracking()
-            .Include(es => es.Skill)
             .Where(es => es.EmployeeId == employeeId)
+            .Select(ResponseMappings.EmployeeSkillProjection)
             .ToListAsync(cancellationToken);
     }
 
