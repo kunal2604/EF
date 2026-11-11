@@ -36,7 +36,7 @@ public class OpenApiDocumentTests : IClassFixture<OpenApiFactory>
     [InlineData("/api/Employees/{id}", "get", new[] { "200", "404", "500" })]
     [InlineData("/api/Employees/{id}", "put", new[] { "204", "400", "404", "409", "500" })]
     [InlineData("/api/Employees/{id}", "delete", new[] { "204", "404", "409", "500" })]
-    [InlineData("/api/Departments", "post", new[] { "200", "400", "409", "500" })]
+    [InlineData("/api/Departments", "post", new[] { "201", "400", "409", "500" })]
     [InlineData("/api/Departments/{id}", "put", new[] { "204", "400", "404", "409", "500" })]
     [InlineData("/api/Departments/{id}", "delete", new[] { "204", "404", "409", "500" })]
     [InlineData("/api/Skills", "post", new[] { "201", "400", "409", "500" })]

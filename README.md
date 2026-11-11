@@ -114,7 +114,7 @@ dotnet test EF.Tests --filter "Category=Database"  # database tests only
 
 `EF.Tests` (xUnit + NSubstitute + Testcontainers) has two kinds of tests.
 
-**Without a database** (144 tests):
+**Without a database** (145 tests):
 - **Services** are unit-tested with mocked repositories: business rules, conflicts, not-found cases, delete guards, paging.
 - **Exception handler** is tested with real Npgsql error objects (unique, restrict and foreign-key violations, client disconnects).
 - **HTTP layer** is tested through the real ASP.NET pipeline (`WebApplicationFactory`) with the services mocked: routes, validation, status codes and the error JSON shape.

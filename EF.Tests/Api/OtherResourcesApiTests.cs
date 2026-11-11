@@ -139,6 +139,19 @@ public class DepartmentsApiTests(ApiFactory factory) : ApiTestBase(factory)
         Assert.Equal(HttpStatusCode.NotFound, (await Client.GetAsync("/api/departments/2")).StatusCode);
     }
 
+    [Fact]
+    public async Task Create_returns_201_with_a_location_and_the_department()
+    {
+        Factory.Departments.CreateAsync(Arg.Any<CreateDepartmentDto>(), Arg.Any<CancellationToken>())
+            .Returns(new DepartmentResponseDto { Id = 7, Name = "Legal" });
+
+        var response = await Client.PostAsJsonAsync("/api/departments", new { name = "Legal" });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.EndsWith("/api/Departments/7", response.Headers.Location!.ToString());
+        Assert.Equal("Legal", (await Json(response)).GetProperty("name").GetString());
+    }
+
     [Theory]
     [InlineData("")]
     public async Task Create_and_update_require_a_name(string name)

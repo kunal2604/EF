@@ -47,14 +47,18 @@ public class DepartmentsController : ControllerBase
 
     // POST: api/departments
     [HttpPost]
-    [ProducesResponseType<DepartmentResponseDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<DepartmentResponseDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async Task<IActionResult> Create(CreateDepartmentDto dto, CancellationToken cancellationToken)
     {
         var department = await _departmentService.CreateAsync(dto, cancellationToken);
 
-        return Ok(department);
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = department.Id },
+            department
+        );
     }
 
     // PUT: api/departments/1
