@@ -49,6 +49,11 @@ public class EmployeeRepository : IEmployeeRepository
             .FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
     }
 
+    public async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken)
+    {
+        return await _context.Employees.AnyAsync(e => e.Id == id, cancellationToken);
+    }
+
     public async Task<Employee?> GetByEmailAsync(string email, CancellationToken cancellationToken)
     {
         return await _context.Employees

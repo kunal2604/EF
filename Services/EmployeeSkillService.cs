@@ -24,9 +24,7 @@ public class EmployeeSkillService : IEmployeeSkillService
 
     public async Task AssignSkillAsync(int employeeId, AssignSkillDto dto, CancellationToken cancellationToken)
     {
-        var employee = await _employeeRepository.GetByIdAsync(employeeId, cancellationToken);
-
-        if (employee is null)
+        if (!await _employeeRepository.ExistsAsync(employeeId, cancellationToken))
             throw new NotFoundException("Employee not found.");
 
         var skill = await _skillRepository.GetByIdAsync(dto.SkillId, cancellationToken);
@@ -56,9 +54,7 @@ public class EmployeeSkillService : IEmployeeSkillService
         int employeeId,
         CancellationToken cancellationToken)
     {
-        var employee = await _employeeRepository.GetByIdAsync(employeeId, cancellationToken);
-
-        if (employee is null)
+        if (!await _employeeRepository.ExistsAsync(employeeId, cancellationToken))
             throw new NotFoundException("Employee not found.");
 
         return await _employeeSkillRepository.GetByEmployeeIdAsync(employeeId, cancellationToken);
