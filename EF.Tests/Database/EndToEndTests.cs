@@ -115,6 +115,44 @@ public class EndToEndTests(PostgresFixture db) : DatabaseTestBase(db)
         Assert.Equal(HttpStatusCode.NoContent, (await c.PutAsJsonAsync($"/api/employees/{asha}", Body("ASHA@test.com"))).StatusCode);
     }
 
+    [Theory]
+    [InlineData("Engineering")]
+    [InlineData("engineering")]
+    public async Task A_duplicate_department_name_is_409_whatever_the_case(string duplicate)
+    {
+        var c = Client;
+        await NewDepartment(c, "Engineering");
+
+        var response = await c.PostAsJsonAsync("/api/departments", new { name = duplicate });
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal("Department already exists !", await Detail(response));
+    }
+
+    [Fact]
+    public async Task Renaming_to_another_departments_name_is_409_but_keeping_or_recasing_your_own_is_fine()
+    {
+        var c = Client;
+        var engineering = await NewDepartment(c, "Engineering");
+        await NewDepartment(c, "HR");
+
+        Assert.Equal(HttpStatusCode.Conflict, (await c.PutAsJsonAsync($"/api/departments/{engineering}", new { name = "hr" })).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await c.PutAsJsonAsync($"/api/departments/{engineering}", new { name = "Engineering" })).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await c.PutAsJsonAsync($"/api/departments/{engineering}", new { name = "ENGINEERING" })).StatusCode);
+    }
+
+    [Fact]
+    public async Task Eight_simultaneous_creates_with_the_same_department_name_give_one_success_and_no_500s()
+    {
+        var c = Client;
+
+        var responses = await Task.WhenAll(Enumerable.Range(0, 8)
+            .Select(_ => c.PostAsJsonAsync("/api/departments", new { name = "Legal" })));
+
+        Assert.Equal(1, responses.Count(r => r.StatusCode == HttpStatusCode.OK));
+        Assert.Equal(7, responses.Count(r => r.StatusCode == HttpStatusCode.Conflict));
+    }
+
     [Fact]
     public async Task A_duplicate_skill_name_is_409_whatever_the_case()
     {

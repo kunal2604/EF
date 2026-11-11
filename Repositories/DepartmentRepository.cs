@@ -38,6 +38,13 @@ public class DepartmentRepository : IDepartmentRepository
             .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
     }
 
+    public async Task<bool> NameExistsAsync(string name, int? excludeId, CancellationToken cancellationToken)
+    {
+        // The column is citext, so == is already case-insensitive.
+        return await _context.Departments
+            .AnyAsync(d => d.Name == name && d.Id != excludeId, cancellationToken);
+    }
+
     public async Task AddAsync(Department department, CancellationToken cancellationToken)
     {
         await _context.Departments.AddAsync(department, cancellationToken);

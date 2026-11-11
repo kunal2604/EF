@@ -49,6 +49,7 @@ public class DepartmentsController : ControllerBase
     [HttpPost]
     [ProducesResponseType<DepartmentResponseDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async Task<IActionResult> Create(CreateDepartmentDto dto, CancellationToken cancellationToken)
     {
         var department = await _departmentService.CreateAsync(dto, cancellationToken);
@@ -61,6 +62,7 @@ public class DepartmentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async Task<IActionResult> Update(int id, UpdateDepartmentDto dto, CancellationToken cancellationToken)
     {
         var updated = await _departmentService.UpdateAsync(id, dto, cancellationToken);

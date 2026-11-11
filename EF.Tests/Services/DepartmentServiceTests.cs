@@ -1,5 +1,6 @@
 using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.DTOs.Departments;
+using EmployeeManagement.Exceptions;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services;
@@ -52,6 +53,42 @@ public class DepartmentServiceTests
 
         Assert.Equal("Legal", dto.Name);
         await _repo.Received(1).AddAsync(Arg.Is<Department>(d => d.Name == "Legal"), _ct);
+    }
+
+    [Fact]
+    public async Task Create_throws_Conflict_when_the_name_is_taken()
+    {
+        _repo.NameExistsAsync("Legal", null, _ct).Returns(true);
+
+        var ex = await Assert.ThrowsAsync<ConflictException>(
+            () => _sut.CreateAsync(new CreateDepartmentDto { Name = "Legal" }, _ct));
+
+        Assert.Equal("Department already exists !", ex.Message);
+        await _repo.DidNotReceiveWithAnyArgs().AddAsync(default!, default);
+    }
+
+    [Fact]
+    public async Task Update_throws_Conflict_when_another_department_has_the_name()
+    {
+        _repo.GetByIdAsync(1, _ct).Returns(TestData.Department());
+        _repo.NameExistsAsync("HR", 1, _ct).Returns(true);
+
+        await Assert.ThrowsAsync<ConflictException>(
+            () => _sut.UpdateAsync(1, new UpdateDepartmentDto { Name = "HR" }, _ct));
+
+        await _repo.DidNotReceiveWithAnyArgs().UpdateAsync(default!, default);
+    }
+
+    [Fact]
+    public async Task Update_excludes_the_department_itself_from_the_name_check()
+    {
+        var department = TestData.Department();
+        _repo.GetByIdAsync(1, _ct).Returns(department);
+
+        await _sut.UpdateAsync(1, new UpdateDepartmentDto { Name = "Engineering" }, _ct); // same name, own row
+
+        await _repo.Received(1).NameExistsAsync("Engineering", 1, _ct);
+        await _repo.Received(1).UpdateAsync(department, _ct);
     }
 
     [Fact]

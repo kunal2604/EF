@@ -235,6 +235,32 @@ public class RepositoryTests(PostgresFixture db) : DatabaseTestBase(db)
         Assert.Empty(ctx.ChangeTracker.Entries());
     }
 
+    // ---- departments: name uniqueness check ----
+
+    [Theory]
+    [InlineData("Engineering", null, true)]
+    [InlineData("engineering", null, true)]   // case-insensitive
+    [InlineData("Engineering ", null, false)] // no implicit trimming
+    [InlineData("Legal", null, false)]
+    public async Task Department_name_check_ignores_case(string name, int? excludeId, bool expected)
+    {
+        await SeedDepartmentAsync("Engineering");
+        await using var ctx = NewContext();
+
+        Assert.Equal(expected, await new DepartmentRepository(ctx).NameExistsAsync(name, excludeId, _ct));
+    }
+
+    [Fact]
+    public async Task Department_name_check_can_exclude_the_department_itself()
+    {
+        var department = await SeedDepartmentAsync("Engineering");
+        await using var ctx = NewContext();
+        var sut = new DepartmentRepository(ctx);
+
+        Assert.False(await sut.NameExistsAsync("ENGINEERING", department.Id, _ct)); // renaming to its own name is fine
+        Assert.True(await sut.NameExistsAsync("ENGINEERING", department.Id + 1, _ct));
+    }
+
     // ---- skills ----
 
     [Theory]
