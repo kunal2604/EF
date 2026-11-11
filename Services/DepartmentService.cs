@@ -1,6 +1,7 @@
 using EmployeeManagement.Mappings;
 using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.DTOs.Departments;
+using EmployeeManagement.Exceptions;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services.Interfaces;
@@ -39,6 +40,9 @@ public class DepartmentService : IDepartmentService
 
     public async Task<DepartmentResponseDto> CreateAsync(CreateDepartmentDto dto, CancellationToken cancellationToken)
     {
+        if (await _departmentRepository.NameExistsAsync(dto.Name, excludeId: null, cancellationToken))
+            throw new ConflictException("Department already exists !");
+
         var department = new Department
         {
             Name = dto.Name
@@ -55,6 +59,9 @@ public class DepartmentService : IDepartmentService
 
         if (department is null)
             return false;
+
+        if (await _departmentRepository.NameExistsAsync(dto.Name, excludeId: id, cancellationToken))
+            throw new ConflictException("Department already exists !");
 
         department.Name = dto.Name;
 

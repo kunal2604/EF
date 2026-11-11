@@ -113,6 +113,7 @@ public class GlobalExceptionHandlerTests
 
     [Theory]
     [InlineData("IX_Employees_Email", "Email already exists !")]
+    [InlineData("IX_Departments_Name", "Department already exists !")]
     [InlineData("IX_Skills_Name", "Skill already exists.")]
     [InlineData("PK_EmployeeSkills", "This skill is already assigned to the employee.")]
     [InlineData("PK_EmployeeProjects", "Employee is already assigned to this project !")]

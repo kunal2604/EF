@@ -100,6 +100,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
     private static string DescribeUniqueViolation(string? constraintName) => constraintName switch
     {
         "IX_Employees_Email" => "Email already exists !",
+        "IX_Departments_Name" => "Department already exists !",
         "IX_Skills_Name" => "Skill already exists.",
         "PK_EmployeeSkills" => "This skill is already assigned to the employee.",
         "PK_EmployeeProjects" => "Employee is already assigned to this project !",

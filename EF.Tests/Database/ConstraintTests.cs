@@ -31,6 +31,21 @@ public class ConstraintTests(PostgresFixture db) : DatabaseTestBase(db)
         Assert.Equal("IX_Employees_Email", pg.ConstraintName);
     }
 
+    [Theory]
+    [InlineData("Engineering")]
+    [InlineData("ENGINEERING")] // citext: the database ignores case
+    public async Task Department_name_must_be_unique_whatever_the_case(string duplicate)
+    {
+        await SeedDepartmentAsync("Engineering");
+
+        await using var ctx = NewContext();
+        ctx.Departments.Add(new Department { Name = duplicate });
+        var pg = await ExpectPostgresErrorAsync(() => ctx.SaveChangesAsync());
+
+        Assert.Equal(PostgresErrorCodes.UniqueViolation, pg.SqlState);
+        Assert.Equal("IX_Departments_Name", pg.ConstraintName);
+    }
+
     [Fact]
     public async Task Skill_name_must_be_unique()
     {

@@ -52,9 +52,14 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(d => d.Id);
 
+            // Case-insensitive ("citext") so "HR" and "hr" count as the same department.
             entity.Property(d => d.Name)
                 .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(100)
+                .HasColumnType("citext");
+
+            entity.HasIndex(d => d.Name)
+                .IsUnique();
         });
     
         /* 
