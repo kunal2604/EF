@@ -20,17 +20,17 @@ public class SkillsController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType<SkillResponseDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
     public async Task<IActionResult> Create(CreateSkillDto dto, CancellationToken cancellationToken)
     {
-        var id = await _skillService.CreateAsync(dto, cancellationToken);
+        var skill = await _skillService.CreateAsync(dto, cancellationToken);
 
         return CreatedAtAction(
             nameof(GetById),
-            new { id },
-            new { id, message = "Skill created successfully." });
+            new { id = skill.Id },
+            skill);
     }
 
     [HttpGet]

@@ -17,7 +17,7 @@ public class SkillService : ISkillService
         _skillRepository = skillRepository;
     }
 
-    public async Task<int> CreateAsync(CreateSkillDto dto, CancellationToken cancellationToken)
+    public async Task<SkillResponseDto> CreateAsync(CreateSkillDto dto, CancellationToken cancellationToken)
     {
         if (await _skillRepository.ExistsByNameAsync(dto.Name.Trim(), cancellationToken))
             throw new ConflictException("Skill already exists.");
@@ -29,7 +29,7 @@ public class SkillService : ISkillService
 
         await _skillRepository.AddAsync(skill, cancellationToken);
 
-        return skill.Id;
+        return skill.ToResponseDto();
     }
 
     public async Task<PagedResult<SkillResponseDto>> GetPagedAsync(

@@ -40,7 +40,7 @@ public class EndToEndTests(PostgresFixture db) : DatabaseTestBase(db)
         var skill = await PostId(c, "/api/skills", new { name = "C#" });
         var project = await PostId(c, "/api/projects", new { name = "Apollo", description = "d" });
 
-        Assert.Equal(HttpStatusCode.OK, (await c.PostAsJsonAsync($"/api/employees/{emp}/skills",
+        Assert.Equal(HttpStatusCode.NoContent, (await c.PostAsJsonAsync($"/api/employees/{emp}/skills",
             new { skillId = skill, proficiencyLevel = "Advanced", yearsOfExperience = 3 })).StatusCode);
         Assert.Equal(HttpStatusCode.NoContent, (await c.PostAsJsonAsync($"/api/projects/{project}/employees", new { employeeId = emp })).StatusCode);
 
@@ -269,7 +269,7 @@ public class EndToEndTests(PostgresFixture db) : DatabaseTestBase(db)
         var project = await PostId(c, "/api/projects", new { name = "Apollo", description = "d" });
         var assignSkill = new { skillId = skill, proficiencyLevel = "Basic", yearsOfExperience = 1 };
 
-        Assert.Equal(HttpStatusCode.OK, (await c.PostAsJsonAsync($"/api/employees/{emp}/skills", assignSkill)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await c.PostAsJsonAsync($"/api/employees/{emp}/skills", assignSkill)).StatusCode);
         Assert.Equal(HttpStatusCode.Conflict, (await c.PostAsJsonAsync($"/api/employees/{emp}/skills", assignSkill)).StatusCode);
 
         Assert.Equal(HttpStatusCode.NoContent, (await c.PostAsJsonAsync($"/api/projects/{project}/employees", new { employeeId = emp })).StatusCode);

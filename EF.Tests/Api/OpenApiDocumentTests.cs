@@ -41,7 +41,7 @@ public class OpenApiDocumentTests : IClassFixture<OpenApiFactory>
     [InlineData("/api/Departments/{id}", "delete", new[] { "204", "404", "409", "500" })]
     [InlineData("/api/Skills", "post", new[] { "201", "400", "409", "500" })]
     [InlineData("/api/Projects/{projectId}/employees", "post", new[] { "204", "400", "404", "409", "500" })]
-    [InlineData("/api/employees/{employeeId}/skills", "post", new[] { "200", "400", "404", "409", "500" })]
+    [InlineData("/api/employees/{employeeId}/skills", "post", new[] { "204", "400", "404", "409", "500" })]
     [InlineData("/api/employees/{employeeId}/skills/{skillId}", "delete", new[] { "204", "404", "500" })]
     public async Task Endpoint_documents_its_success_and_error_responses(string path, string method, string[] expected)
         => Assert.Equal(expected, Codes(await Paths(), path, method));

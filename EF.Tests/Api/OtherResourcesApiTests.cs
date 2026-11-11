@@ -85,14 +85,18 @@ public class ProjectsApiTests(ApiFactory factory) : ApiTestBase(factory)
 public class SkillsApiTests(ApiFactory factory) : ApiTestBase(factory)
 {
     [Fact]
-    public async Task Create_returns_201_with_the_new_id()
+    public async Task Create_returns_201_with_a_location_and_the_skill()
     {
-        Factory.Skills.CreateAsync(Arg.Any<CreateSkillDto>(), Arg.Any<CancellationToken>()).Returns(5);
+        Factory.Skills.CreateAsync(Arg.Any<CreateSkillDto>(), Arg.Any<CancellationToken>()).Returns(new SkillResponseDto { Id = 5, Name = "Go" });
 
         var response = await Client.PostAsJsonAsync("/api/skills", new { name = "Go" });
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        Assert.Equal(5, (await Json(response)).GetProperty("id").GetInt32());
+        Assert.EndsWith("/api/Skills/5", response.Headers.Location!.ToString());
+        var body = await Json(response);
+        Assert.Equal(5, body.GetProperty("id").GetInt32());
+        Assert.Equal("Go", body.GetProperty("name").GetString());
+        Assert.False(body.TryGetProperty("message", out _));
     }
 
     [Fact]
@@ -209,7 +213,7 @@ public class EmployeeSkillsApiTests(ApiFactory factory) : ApiTestBase(factory)
         Factory.EmployeeSkills.AssignSkillAsync(9, Arg.Any<AssignSkillDto>(), Arg.Any<CancellationToken>()).ThrowsAsync(new NotFoundException("Employee not found."));
         Factory.EmployeeSkills.AssignSkillAsync(2, Arg.Any<AssignSkillDto>(), Arg.Any<CancellationToken>()).ThrowsAsync(new ConflictException("already assigned"));
 
-        Assert.Equal(HttpStatusCode.OK, (await Client.PostAsJsonAsync("/api/employees/1/skills", ok)).StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, (await Client.PostAsJsonAsync("/api/employees/1/skills", ok)).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await Client.PostAsJsonAsync("/api/employees/9/skills", ok)).StatusCode);
         Assert.Equal(HttpStatusCode.Conflict, (await Client.PostAsJsonAsync("/api/employees/2/skills", ok)).StatusCode);
     }
