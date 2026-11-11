@@ -231,5 +231,20 @@ drop table "Employees" cascade;                      -- also drops dependent obj
 The simplest way to wipe everything is `docker rm -f ef-tests-postgres`; the next test run creates a fresh database with the full schema.
 Your development database (port 5432, user secrets) is a separate server: do not run `drop` or `truncate` there.
 
+### Continuous integration
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every pull request and on pushes to `DEVELOPMENT`. It restores,
+builds the API with warnings treated as errors, and runs all tests, including the PostgreSQL ones (GitHub's Ubuntu runners
+have Docker, so Testcontainers works there unchanged). If a check fails, the test report (`.trx`) is attached to the run as
+the `test-results` artifact. To run the same steps locally:
+
+```bash
+dotnet build EF.csproj --configuration Release -warnaserror
+dotnet test EF.Tests/EF.Tests.csproj --configuration Release
+```
+
+To make passing checks mandatory, enable branch protection on `DEVELOPMENT` in the GitHub repository settings and require
+the `build-and-test` check.
+
 The test project lives in a subfolder and is excluded from `EF.csproj`, so
 `dotnet build`, `dotnet run` and `dotnet ef` at the repo root are unaffected.

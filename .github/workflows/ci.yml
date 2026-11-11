@@ -1,0 +1,48 @@
+name: CI
+
+# Builds the API and runs every test (including the PostgreSQL ones, which start a
+# throwaway container with Testcontainers) on each pull request and on pushes to DEVELOPMENT.
+on:
+  pull_request:
+  push:
+    branches: [DEVELOPMENT]
+
+# A newer push to the same branch/PR makes the older, still-running check pointless.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest   # has Docker preinstalled, which the database tests need
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore EF.csproj && dotnet restore EF.Tests/EF.Tests.csproj
+
+      # The API project excludes EF.Tests, so this builds only the API. Warnings fail the build.
+      - name: Build
+        run: dotnet build EF.csproj --no-restore --configuration Release -warnaserror
+
+      - name: Test
+        run: >
+          dotnet test EF.Tests/EF.Tests.csproj --no-restore --configuration Release
+          --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
+
+      # Keep the test report when something fails, so the reason can be read without rerunning.
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/
