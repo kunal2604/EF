@@ -4,7 +4,7 @@ using EmployeeManagement.DTOs.EmployeeSkills;
 namespace EmployeeManagement.Services.Interfaces;
 public interface ISkillService
 {
-    Task<int> CreateAsync(CreateSkillDto dto, CancellationToken cancellationToken);
+    Task<SkillResponseDto> CreateAsync(CreateSkillDto dto, CancellationToken cancellationToken);
 
     Task<PagedResult<SkillResponseDto>> GetPagedAsync(PagedQuery query, CancellationToken cancellationToken);
 

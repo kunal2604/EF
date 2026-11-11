@@ -17,7 +17,7 @@ public class EmployeeSkillsController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType<string>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/problem+json")]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict, "application/problem+json")]
@@ -28,7 +28,7 @@ public class EmployeeSkillsController : ControllerBase
     {
         await _service.AssignSkillAsync(employeeId, dto, cancellationToken);
 
-        return Ok("Skill assigned successfully.");
+        return NoContent();
     }
 
     [HttpGet]

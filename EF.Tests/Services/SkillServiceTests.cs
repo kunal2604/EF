@@ -37,11 +37,13 @@ public class SkillServiceTests
     }
 
     [Fact]
-    public async Task Create_returns_the_new_id()
+    public async Task Create_returns_the_new_skill()
     {
         _repo.When(r => r.AddAsync(Arg.Any<Skill>(), _ct)).Do(c => c.Arg<Skill>().Id = 42);
 
-        Assert.Equal(42, await _sut.CreateAsync(new CreateSkillDto { Name = "Rust" }, _ct));
+        var dto = await _sut.CreateAsync(new CreateSkillDto { Name = "Rust" }, _ct);
+
+        Assert.Equal((42, "Rust"), (dto.Id, dto.Name));
     }
 
     [Fact]
