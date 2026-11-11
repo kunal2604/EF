@@ -1,6 +1,7 @@
 using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.DTOs.Projects;
 using EmployeeManagement.Exceptions;
+using EmployeeManagement.Mappings;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services;
@@ -22,7 +23,7 @@ public class ProjectServiceTests
     {
         var project = TestData.Project();
         project.Employees.Add(TestData.Employee(1));
-        _projects.GetPagedAsync(1, 20, _ct).Returns((new List<Project> { project }, 1));
+        _projects.GetPagedAsync(1, 20, _ct).Returns((new List<ProjectResponseDto> { project.ToResponseDto() }, 1));
 
         var result = await _sut.GetPagedAsync(new PagedQuery(), _ct);
 
@@ -30,9 +31,23 @@ public class ProjectServiceTests
     }
 
     [Fact]
+    public async Task GetById_returns_the_repository_dto()
+    {
+        var project = TestData.Project();
+        project.Employees.Add(TestData.Employee(1));
+        _projects.GetResponseByIdAsync(1, _ct).Returns(project.ToResponseDto());
+
+        var dto = await _sut.GetByIdAsync(1, _ct);
+
+        Assert.NotNull(dto);
+        Assert.Equal(new[] { "Asha" }, dto.EmployeeNames);
+        await _projects.DidNotReceive().GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>()); // no tracked entity needed to read
+    }
+
+    [Fact]
     public async Task GetById_returns_null_when_missing()
     {
-        _projects.GetByIdAsync(9, _ct).Returns((Project?)null);
+        _projects.GetResponseByIdAsync(9, _ct).Returns((ProjectResponseDto?)null);
 
         Assert.Null(await _sut.GetByIdAsync(9, _ct));
     }

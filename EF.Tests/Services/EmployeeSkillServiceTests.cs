@@ -1,5 +1,6 @@
 using EmployeeManagement.DTOs.EmployeeSkills;
 using EmployeeManagement.Exceptions;
+using EmployeeManagement.Mappings;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services;
@@ -79,7 +80,7 @@ public class EmployeeSkillServiceTests
     public async Task GetEmployeeSkills_maps_the_skill_name()
     {
         _employees.GetByIdAsync(1, _ct).Returns(TestData.Employee());
-        _assignments.GetByEmployeeIdAsync(1, _ct).Returns(new List<EmployeeSkill> { TestData.EmployeeSkill() });
+        _assignments.GetByEmployeeIdAsync(1, _ct).Returns(new List<EmployeeSkillResponseDto> { TestData.EmployeeSkill().ToResponseDto() });
 
         var result = await _sut.GetEmployeeSkillsAsync(1, _ct);
 

@@ -24,22 +24,15 @@ public class ProjectService : IProjectService
     public async Task<PagedResult<ProjectResponseDto>> GetPagedAsync(
         PagedQuery query, CancellationToken cancellationToken)
     {
-        var (projects, totalCount) = await _projectRepository.GetPagedAsync(
+        var (items, totalCount) = await _projectRepository.GetPagedAsync(
             query.Page, query.PageSize, cancellationToken);
-
-        var items = projects.Select(p => p.ToResponseDto()).ToList();
 
         return PagedResult<ProjectResponseDto>.Create(items, totalCount, query);
     }
 
     public async Task<ProjectResponseDto?> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
-        var project = await _projectRepository.GetByIdAsync(id, cancellationToken);
-
-        if(project is null)
-            return null;
-
-        return project.ToResponseDto();
+        return await _projectRepository.GetResponseByIdAsync(id, cancellationToken);
     }
 
     public async Task<ProjectResponseDto> CreateAsync(CreateProjectDto dto, CancellationToken cancellationToken)

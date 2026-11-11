@@ -1,6 +1,7 @@
 using EmployeeManagement.DTOs.Common;
 using EmployeeManagement.DTOs.Employees;
 using EmployeeManagement.Exceptions;
+using EmployeeManagement.Mappings;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services;
@@ -33,7 +34,7 @@ public class EmployeeServiceTests
     [Fact]
     public async Task GetPaged_passes_page_to_repository_and_builds_envelope()
     {
-        var rows = new List<Employee> { TestData.Employee(1), TestData.Employee(2, "b@test.com") };
+        var rows = new List<EmployeeResponseDto> { TestData.Employee(1).ToResponseDto(), TestData.Employee(2, "b@test.com").ToResponseDto() };
         _employees.GetPagedAsync(2, 2, _ct).Returns((rows, 5));
 
         var result = await _sut.GetPagedAsync(new PagedQuery { Page = 2, PageSize = 2 }, _ct);
@@ -49,7 +50,7 @@ public class EmployeeServiceTests
     [Fact]
     public async Task GetPaged_with_no_rows_reports_zero_pages()
     {
-        _employees.GetPagedAsync(1, 20, _ct).Returns((new List<Employee>(), 0));
+        _employees.GetPagedAsync(1, 20, _ct).Returns((new List<EmployeeResponseDto>(), 0));
 
         var result = await _sut.GetPagedAsync(new PagedQuery(), _ct);
 
@@ -62,7 +63,7 @@ public class EmployeeServiceTests
     [Fact]
     public async Task GetById_returns_null_when_missing()
     {
-        _employees.GetByIdAsync(9, _ct).Returns((Employee?)null);
+        _employees.GetResponseByIdAsync(9, _ct).Returns((EmployeeResponseDto?)null);
 
         Assert.Null(await _sut.GetByIdAsync(9, _ct));
     }
@@ -70,7 +71,7 @@ public class EmployeeServiceTests
     [Fact]
     public async Task GetById_maps_the_employee()
     {
-        _employees.GetByIdAsync(1, _ct).Returns(TestData.Employee());
+        _employees.GetResponseByIdAsync(1, _ct).Returns(TestData.Employee().ToResponseDto());
 
         var dto = await _sut.GetByIdAsync(1, _ct);
 
