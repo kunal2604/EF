@@ -1,6 +1,8 @@
 using EmployeeManagement.Data;
 using EmployeeManagement.Exceptions;
 using EmployeeManagement.Repositories;
+using EmployeeManagement.Repositories.AdoNet;
+using EmployeeManagement.Repositories.AdoNet.Interfaces;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services;
 using EmployeeManagement.Services.Interfaces;
@@ -40,6 +42,7 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IEmployeeSkillRepository, EmployeeSkillRepository>();
+builder.Services.AddScoped<IEmployeeAdoRepository, EmployeeAdoRepository>();
 
 // Register services
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
@@ -47,6 +50,7 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IEmployeeSkillService, EmployeeSkillService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
+builder.Services.AddScoped<IEmployeeAdoService, EmployeeAdoService>();
 
 var app = builder.Build();
 
