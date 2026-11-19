@@ -20,6 +20,7 @@ public class ApiFactory : WebApplicationFactory<Program>
     public IProjectService Projects { get; } = Substitute.For<IProjectService>();
     public ISkillService Skills { get; } = Substitute.For<ISkillService>();
     public IEmployeeSkillService EmployeeSkills { get; } = Substitute.For<IEmployeeSkillService>();
+    public IEmployeeAdoService EmployeeAdo { get; } = Substitute.For<IEmployeeAdoService>();
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -34,6 +35,7 @@ public class ApiFactory : WebApplicationFactory<Program>
             Replace(services, Projects);
             Replace(services, Skills);
             Replace(services, EmployeeSkills);
+            Replace(services, EmployeeAdo);
         });
     }
 
@@ -45,7 +47,7 @@ public class ApiFactory : WebApplicationFactory<Program>
 
     public void ResetMocks()
     {
-        foreach (var mock in new object[] { Employees, Departments, Projects, Skills, EmployeeSkills })
+        foreach (var mock in new object[] { Employees, Departments, Projects, Skills, EmployeeSkills, EmployeeAdo })
             mock.ClearSubstitute(ClearOptions.All);
     }
 }

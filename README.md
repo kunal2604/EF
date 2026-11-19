@@ -156,17 +156,18 @@ dotnet test EF.Tests --filter "Category=Database"  # database tests only
 
 `EF.Tests` (xUnit + NSubstitute + Testcontainers) has two kinds of tests.
 
-**Without a database** (147 tests):
+**Without a database** (165 tests):
 - **Services** are unit-tested with mocked repositories: business rules, conflicts, not-found cases, delete guards, paging.
 - **Exception handler** is tested with real Npgsql error objects (unique, restrict and foreign-key violations, client disconnects).
 - **HTTP layer** is tested through the real ASP.NET pipeline (`WebApplicationFactory`) with the services mocked: routes, validation, status codes and the error JSON shape.
 
-**With a real PostgreSQL** (68 tests, category `Database`). A throwaway PostgreSQL
+**With a real PostgreSQL** (81 tests, category `Database`). A throwaway PostgreSQL
 container is started with Testcontainers, your real migrations are applied to it, and
 it is removed afterwards. Your development database is never touched.
 - **Schema:** every migration applies to an empty database, the migrations match the current model, `citext` is installed.
 - **Constraints:** case-insensitive unique email and department name, unique skill names, the check on years of experience, column lengths, salary precision, the default joining date, and that referenced rows cannot be deleted.
 - **Repositories:** real paging, ordering, includes and case-insensitive lookups.
+- **ADO.NET queries:** the hand-written Npgsql repository behind `/api/ado/employees` (column mapping, missing rows, agreement with the EF Core endpoints).
 - **End to end:** HTTP requests through the whole unmocked app into the database, including the blocked deletes and the simultaneous-duplicate email and department-name races.
 
 Requirements for the database tests: Docker, and your user in the `docker` group

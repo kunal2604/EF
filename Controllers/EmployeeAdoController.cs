@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using EmployeeManagement.Models;
 using EmployeeManagement.Services.Interfaces;
 
 namespace EmployeeManagement.Controllers;
 
 [ApiController]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/problem+json")]
 [Route("api/ado/employees")]
 public class EmployeeAdoController : ControllerBase
 {
@@ -15,6 +17,7 @@ public class EmployeeAdoController : ControllerBase
     }
 
     [HttpGet]
+    [ProducesResponseType<List<Employee>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllEmployees()
     {
         var employees = await _service.GetAllEmployeesAsync();
@@ -23,6 +26,8 @@ public class EmployeeAdoController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [ProducesResponseType<Employee>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetEmployeeById(int id)
     {
         var employee = await _service.GetEmployeeByIdAsync(id);
