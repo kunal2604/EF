@@ -46,6 +46,40 @@ public class OpenApiDocumentTests : IClassFixture<OpenApiFactory>
     public async Task Endpoint_documents_its_success_and_error_responses(string path, string method, string[] expected)
         => Assert.Equal(expected, Codes(await Paths(), path, method));
 
+    // Regression guard: a route like "{id}" (no ":int") is documented as ["integer","string"], which
+    // makes Swagger UI refuse to send the request ("Required field is not provided").
+    [Fact]
+    public async Task Every_path_parameter_is_documented_with_one_plain_type()
+    {
+        var paths = await Paths();
+        var offenders = (from p in paths.EnumerateObject()
+                         from op in p.Value.EnumerateObject()
+                         where op.Value.TryGetProperty("parameters", out _)
+                         from parameter in op.Value.GetProperty("parameters").EnumerateArray()
+                         where parameter.GetProperty("in").GetString() == "path"
+                         where parameter.GetProperty("schema").GetProperty("type").ValueKind != JsonValueKind.String
+                         select $"{op.Name.ToUpper()} {p.Name} ({parameter.GetProperty("name").GetString()})").ToList();
+
+        Assert.Empty(offenders);
+    }
+
+    [Theory]
+    [InlineData("/api/ado/employees", new[] { "200", "500" })]
+    [InlineData("/api/ado/employees/{id}", new[] { "200", "404", "500" })]
+    public async Task The_ado_endpoints_document_their_responses(string path, string[] expected)
+        => Assert.Equal(expected, Codes(await Paths(), path, "get"));
+
+    [Fact]
+    public async Task The_ado_endpoints_are_documented_with_an_integer_id()
+    {
+        var paths = await Paths();
+
+        Assert.True(paths.TryGetProperty("/api/ado/employees", out _));
+        var idSchema = paths.GetProperty("/api/ado/employees/{id}").GetProperty("get")
+            .GetProperty("parameters")[0].GetProperty("schema");
+        Assert.Equal("integer", idSchema.GetProperty("type").GetString());
+    }
+
     [Fact]
     public async Task Every_operation_documents_the_500_error()
     {
