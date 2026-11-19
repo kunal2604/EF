@@ -4,6 +4,7 @@ using EmployeeManagement.Repositories;
 using EmployeeManagement.Repositories.Interfaces;
 using EmployeeManagement.Services;
 using EmployeeManagement.Services.Interfaces;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+
+// Health checks: "can the app reach its database?" (used by /health)
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("database");
 
 // Register repositories
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -69,6 +74,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
+
+// /health/live : the process is up and answering (no dependencies, so it only fails if the app is dead).
+// /health      : also checks the database; 200 "Healthy" or 503 "Unhealthy". No details are exposed.
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health");
 
 app.Run();
 
