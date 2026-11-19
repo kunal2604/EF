@@ -101,6 +101,20 @@ In Development only:
 
 `EF.http` contains ready-made requests (VS Code REST Client).
 
+## Health checks
+
+| URL | Meaning | Healthy | Unhealthy |
+|---|---|---|---|
+| `GET /health/live` | the app is running (no dependencies, so it only fails if the app is dead) | `200 Healthy` | no answer |
+| `GET /health` | the app is running **and** can reach its database | `200 Healthy` | `503 Unhealthy` |
+
+Use `/health/live` for "restart it if it stops answering" probes and `/health` for "send traffic only when the database is up"
+checks (load balancers, Kubernetes, uptime monitors). The response is the single word only: no host names, users or error text.
+
+```bash
+curl -i http://localhost:5085/health
+```
+
 ## Endpoints
 
 | Resource | Routes |
@@ -142,12 +156,12 @@ dotnet test EF.Tests --filter "Category=Database"  # database tests only
 
 `EF.Tests` (xUnit + NSubstitute + Testcontainers) has two kinds of tests.
 
-**Without a database** (145 tests):
+**Without a database** (147 tests):
 - **Services** are unit-tested with mocked repositories: business rules, conflicts, not-found cases, delete guards, paging.
 - **Exception handler** is tested with real Npgsql error objects (unique, restrict and foreign-key violations, client disconnects).
 - **HTTP layer** is tested through the real ASP.NET pipeline (`WebApplicationFactory`) with the services mocked: routes, validation, status codes and the error JSON shape.
 
-**With a real PostgreSQL** (67 tests, category `Database`). A throwaway PostgreSQL
+**With a real PostgreSQL** (68 tests, category `Database`). A throwaway PostgreSQL
 container is started with Testcontainers, your real migrations are applied to it, and
 it is removed afterwards. Your development database is never touched.
 - **Schema:** every migration applies to an empty database, the migrations match the current model, `citext` is installed.
