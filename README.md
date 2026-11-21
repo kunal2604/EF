@@ -156,10 +156,11 @@ dotnet test EF.Tests --filter "Category=Database"  # database tests only
 
 `EF.Tests` (xUnit + NSubstitute + Testcontainers) has two kinds of tests.
 
-**Without a database** (165 tests):
+**Without a database** (174 tests):
 - **Services** are unit-tested with mocked repositories: business rules, conflicts, not-found cases, delete guards, paging.
 - **Exception handler** is tested with real Npgsql error objects (unique, restrict and foreign-key violations, client disconnects).
 - **HTTP layer** is tested through the real ASP.NET pipeline (`WebApplicationFactory`) with the services mocked: routes, validation, status codes and the error JSON shape.
+- **Learning notes:** `EF.Tests/Learning/DelegateConceptsTests.cs` is a set of small runnable examples of C# delegates (method groups, lambdas, closures, multicast, variance), tied to `RowMapper<T>` in the ADO.NET repository.
 
 **With a real PostgreSQL** (81 tests, category `Database`). A throwaway PostgreSQL
 container is started with Testcontainers, your real migrations are applied to it, and
